@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-logging-1.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/httpclient-4.3-beta1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/httpcore-4.3.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/org-apache-commons-codec.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/signpost-commonshttp-1.2.1.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/signpost-core-1.2.1.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/servlet-api.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
