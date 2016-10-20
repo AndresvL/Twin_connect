@@ -13,6 +13,7 @@ public class OAuthServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String token = req.getParameter("token");
 		String secret = req.getParameter("secret");
+	
 		OAuth oauth = new OAuth();
 		String tempToken = oauth.getTempToken(token, secret);
 		if (tempToken != null) {

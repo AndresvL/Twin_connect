@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -13,23 +12,22 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import model.Token;
+
 import java.util.Map.Entry;
+
 // OAuth 1.0
 public class OAuth {
 	//Does this still work if there're multiple users using this methode?
-	private static String temporaryToken = null;
-	private static String temporarySecret = null; 
 	private static String callbackConfirmed = null;
-	private static String consumerToken = null;
-	private static String consumerSecret = null;
-	private static String accessToken = null;
-	private static String accessSecret = null;
+	private static Token token;
 	
-	public String getTempToken(String consumer_key, String consumer_secret)
+	public String getTempToken(String consumerKey, String consumerSecret)
 			throws ClientProtocolException, IOException {
+		token = new Token();
+		token.setConsumerKey(consumerKey);
+		token.setConsumerSecret(consumerSecret);
 		String uri = "https://login.twinfield.com/oauth/initiate.aspx";
-		consumerToken = consumer_key;
-		consumerSecret = consumer_secret;
 		//Change to WorkOrder host
 		//action is verify.do
 		String callback = "http://localhost:8080/Twinfield_connector/verify.do";
@@ -41,16 +39,15 @@ public class OAuth {
 		StringBuilder headerReq = new StringBuilder();
 		headerReq.append("OAuth ");
 		headerReq.append("realm=\"Twinfield\", ");
-		headerReq.append("oauth_consumer_key=\"" + consumerToken + "\", ");
+		headerReq.append("oauth_consumer_key=\"" + consumerKey + "\", ");
 		headerReq.append("oauth_signature_method=\"PLAINTEXT\", ");
 		headerReq.append("oauth_timestamp=\"\", ");
 		headerReq.append("oauth_nonce=\"\", ");
 		headerReq.append("oauth_callback=\"" + callback + "\", ");
-		headerReq.append("oauth_signature=\"" + consumer_secret + "&\"");
-
+		headerReq.append("oauth_signature=\"" + consumerSecret + "&\"");
+		
 		httpGet.addHeader("Authorization", headerReq.toString());
 		CloseableHttpResponse response = httpclient.execute(httpGet);
-		
 		try{
 			HttpEntity entity = response.getEntity();
 			String responseString = EntityUtils.toString(entity);
@@ -64,43 +61,47 @@ public class OAuth {
 		    //Get temporary token and secret_temporary token
 			for(Entry<String, String> entry : map.entrySet()){
 				if(entry.getKey().equals("oauth_token")){
-					temporaryToken = entry.getValue();
+					token.setTempKey(entry.getValue());
 				}
 				if(entry.getKey().equals("oauth_token_secret")){
-					temporarySecret = entry.getValue();
+					token.setTempSecret(entry.getValue());
 				}
 				if(entry.getKey().equals("oauth_callback_confirmed")){
 					callbackConfirmed = entry.getValue();// Value is always "true".
 				}
 			}
-			System.out.println("tempToken: "+ temporaryToken);
-			System.out.println("tempSecret: "+ temporarySecret);
+			System.out.println("tempToken: "+ token.getTempKey());
+			System.out.println("tempSecret: "+ token.getTempSecret());
 			System.out.println();
 		}finally{
 			response.close();
 		}
-		return temporaryToken;
+		return token.getTempKey();
 	}
 	
-	public String getAccessToken(String tempToken, String verifyToken) throws ClientProtocolException, IOException{
+	public Token getAccessToken(String tempToken, String verifyToken) throws ClientProtocolException, IOException{
+		token.setTempKey(tempToken);
+		token.setVerifyKey(verifyToken);
+		
 		String uri = "https://login.twinfield.com/oauth/finalize.aspx";
 		CloseableHttpClient httpclient;
 		httpclient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet(uri);
+		
 //		//Build access token request
 //		//Set consumer_key, consumer_secret_key, temporary_secret_key, temporary_key and verify_key
 		StringBuilder headerReq = new StringBuilder();
 		headerReq.append("OAuth ");
 		headerReq.append("realm=\"Twinfield\", ");
-		headerReq.append("oauth_consumer_key=\"" + consumerToken + "\", ");
+		headerReq.append("oauth_consumer_key=\"" + token.getConsumerKey() + "\", ");
 		headerReq.append("oauth_signature_method=\"PLAINTEXT\", ");
-		headerReq.append("oauth_signature=\"" + consumerSecret + "&"+ temporarySecret +"\", ");
-		headerReq.append("oauth_token=\"" + tempToken + "\", ");
+		headerReq.append("oauth_signature=\"" + token.getConsumerSecret() + "&"+ token.getTempSecret() +"\", ");
+		headerReq.append("oauth_token=\"" + token.getTempKey() + "\", ");
 		headerReq.append("oauth_verifier=\""+ verifyToken +"\"");
-		
+		System.out.println("verify: "+ headerReq.toString());
 		httpGet.addHeader("Authorization", headerReq.toString());
 		CloseableHttpResponse response = httpclient.execute(httpGet);
-		
+		System.out.println("test " + headerReq.toString());
 		try{
 			HttpEntity entity = response.getEntity();
 			String responseString = EntityUtils.toString(entity);
@@ -114,17 +115,17 @@ public class OAuth {
 		    //Get access token and secret_access token
 			for(Entry<String, String> entry : map.entrySet()){
 				if(entry.getKey().equals("oauth_token")){
-					accessToken = entry.getValue();
+					token.setAccessKey(entry.getValue());
 				}
 				if(entry.getKey().equals("oauth_token_secret")){
-					accessSecret = entry.getValue();
+					token.setAccessSecret(entry.getValue());
 				}
 			}
-			System.out.println("accessToken: "+ accessToken);
-			System.out.println("accessSecret: "+ accessSecret);
+			System.out.println("accessToken: "+ token.getAccessKey());
+			System.out.println("accessSecret: "+ token.getAccessSecret());
 		}finally{
 			response.close();
 		}
-		return accessToken;
+		return token;
 	}
 }

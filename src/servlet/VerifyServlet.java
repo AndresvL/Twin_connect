@@ -8,15 +8,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuth;
+import controller.SoapHandler;
+import model.Token;
 
 public class VerifyServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String temporaryToken = req.getParameter("oauth_token");
 		String temporaryVerifier = req.getParameter("oauth_verifier");
 		OAuth oauth = new OAuth();
-		String accessToken = oauth.getAccessToken(temporaryToken, temporaryVerifier);
-		if (accessToken != null) {
-			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + accessToken);
-		}
+		Token token = oauth.getAccessToken(temporaryToken, temporaryVerifier);
+		SoapHandler.getSession(token);
+		resp.sendRedirect("http://localhost:8080/Twinfield_connector/");
 	}
 }
