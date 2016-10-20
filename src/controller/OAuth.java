@@ -70,9 +70,6 @@ public class OAuth {
 					callbackConfirmed = entry.getValue();// Value is always "true".
 				}
 			}
-			System.out.println("tempToken: "+ token.getTempKey());
-			System.out.println("tempSecret: "+ token.getTempSecret());
-			System.out.println();
 		}finally{
 			response.close();
 		}
@@ -98,10 +95,8 @@ public class OAuth {
 		headerReq.append("oauth_signature=\"" + token.getConsumerSecret() + "&"+ token.getTempSecret() +"\", ");
 		headerReq.append("oauth_token=\"" + token.getTempKey() + "\", ");
 		headerReq.append("oauth_verifier=\""+ verifyToken +"\"");
-		System.out.println("verify: "+ headerReq.toString());
 		httpGet.addHeader("Authorization", headerReq.toString());
 		CloseableHttpResponse response = httpclient.execute(httpGet);
-		System.out.println("test " + headerReq.toString());
 		try{
 			HttpEntity entity = response.getEntity();
 			String responseString = EntityUtils.toString(entity);
@@ -121,8 +116,6 @@ public class OAuth {
 					token.setAccessSecret(entry.getValue());
 				}
 			}
-			System.out.println("accessToken: "+ token.getAccessKey());
-			System.out.println("accessSecret: "+ token.getAccessSecret());
 		}finally{
 			response.close();
 		}
