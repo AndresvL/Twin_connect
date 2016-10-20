@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuth;
+import model.Token;
 
 public class OAuthServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -15,9 +17,17 @@ public class OAuthServlet extends HttpServlet {
 		String secret = req.getParameter("secret");
 	
 		OAuth oauth = new OAuth();
-		String tempToken = oauth.getTempToken(token, secret);
-		if (tempToken != null) {
-			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + tempToken);
+		Token checkToken = null;
+		try {
+			checkToken = oauth.getTempToken(token, secret);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (checkToken.getAccessToken() == null) {
+			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + checkToken.getTempToken());
+			System.out.println("No AccessToken found in database!");
+		}else{
+			System.out.println("AccessToken found in database");
 		}
 	}
 }

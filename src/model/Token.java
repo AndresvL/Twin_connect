@@ -1,19 +1,27 @@
 package model;
 
 public class Token {
-	protected String consumerKey;
+	protected String consumerToken;
 	protected String consumerSecret;
-	protected String tempKey;
+	protected String tempToken;
 	protected String tempSecret;
-	protected String accessKey;
+	protected String accessToken;
 	protected String accessSecret;
-	protected String verifyKey;
+	protected String verifyToken;
 	
-	public void setConsumerKey(String key){
-		this.consumerKey = key;
+	public Token(String cT, String cS, String aT, String aS){
+		this.consumerToken = cT;
+		this.consumerSecret = cS;
+		this.accessToken = aT;
+		this.accessSecret = aS;
 	}
-	public String getConsumerKey(){
-		return consumerKey;
+	public Token() {
+	}
+	public void setConsumerToken(String key){
+		this.consumerToken = key;
+	}
+	public String getConsumerToken(){
+		return consumerToken;
 	}
 	
 	public void setConsumerSecret(String key){
@@ -23,11 +31,11 @@ public class Token {
 		return consumerSecret;
 	}
 	
-	public void setTempKey(String key){
-		this.tempKey = key;
+	public void setTempToken(String key){
+		this.tempToken = key;
 	}
-	public String getTempKey(){
-		return tempKey;
+	public String getTempToken(){
+		return tempToken;
 	}
 	
 	public void setTempSecret(String key){
@@ -37,11 +45,11 @@ public class Token {
 		return tempSecret;
 	}
 	
-	public void setAccessKey(String key){
-		this.accessKey = key;
+	public void setAccessToken(String key){
+		this.accessToken = key;
 	}
-	public String getAccessKey(){
-		return accessKey;
+	public String getAccessToken(){
+		return accessToken;
 	}
 	
 	public void setAccessSecret(String key){
@@ -51,10 +59,10 @@ public class Token {
 		return accessSecret;
 	}	
 	
-	public void setVerifyKey(String key){
-		this.verifyKey = key;
+	public void setVerifyToken(String key){
+		this.verifyToken = key;
 	}
-	public String getVerifyKey(){
-		return verifyKey;
+	public String getVerifyToken(){
+		return verifyToken;
 	}
 }

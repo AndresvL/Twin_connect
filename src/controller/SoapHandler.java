@@ -49,11 +49,11 @@ public class SoapHandler {
 		SOAPBody soapBody = envelope.getBody();
 		SOAPElement soapBodyElem = soapBody.addChildElement("OAuthLogon","","http://www.twinfield.com/");
 		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("clientToken");
-		soapBodyElem1.addTextNode(token.getConsumerKey());
+		soapBodyElem1.addTextNode(token.getConsumerToken());
 		SOAPElement soapBodyElem2 = soapBodyElem.addChildElement("clientSecret");
 		soapBodyElem2.addTextNode(token.getConsumerSecret());
 		SOAPElement soapBodyElem3 = soapBodyElem.addChildElement("accessToken");
-		soapBodyElem3.addTextNode(token.getAccessKey());
+		soapBodyElem3.addTextNode(token.getAccessToken());
 		SOAPElement soapBodyElem4 = soapBodyElem.addChildElement("accessSecret");
 		soapBodyElem4.addTextNode(token.getAccessSecret());
 		soapMessage.saveChanges();

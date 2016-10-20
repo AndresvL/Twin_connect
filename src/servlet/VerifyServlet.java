@@ -18,7 +18,7 @@ public class VerifyServlet extends HttpServlet {
 		OAuth oauth = new OAuth();
 		Token token = oauth.getAccessToken(temporaryToken, temporaryVerifier);
 		String sessionID = SoapHandler.getSession(token);
-		SoapHandler.getUser(sessionID);
+//		SoapHandler.getUser(sessionID);
 		resp.sendRedirect("http://localhost:8080/Twinfield_connector/");
 	}
 }
