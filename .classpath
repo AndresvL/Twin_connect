@@ -10,5 +10,5 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/signpost-commonshttp-1.2.1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/signpost-core-1.2.1.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/servlet-api.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

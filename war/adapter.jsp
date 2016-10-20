@@ -9,11 +9,11 @@
 <body>
 <form action="OAuth.do">
 <label>Consumer token</label>
-<input type="text" name="token" required autofocus >
+<input type="text" name="token" value ="818784741B7543C7AE95CE5BFB783DF2" required autofocus >
 <label>Consumer secret</label>
-<input type="text" name="secret" required >
+<input type="text" name="secret" value ="F441FB65B6AA42C995F9FAF3662E8A10" required >
 <label>link</label>
-<input type="text" name="secret" required >
+<input type="text" name="link" value="https://login.twinfield.com/oauth/initiate.aspx" required >
 <input type="submit" value="Get Access"/>
 </form>
 </body>

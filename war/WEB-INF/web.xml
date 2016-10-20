@@ -9,11 +9,18 @@
 	</welcome-file-list>
 	<servlet>
 		<servlet-name>oauth servlet</servlet-name>
-		<servlet-class>servlet.OAuthServlet
-		</servlet-class>
+		<servlet-class>servlet.OAuthServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>oauth servlet</servlet-name>
 		<url-pattern>/OAuth.do</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>oauth_verify servlet</servlet-name>
+		<servlet-class>servlet.VerifyServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>oauth_verify servlet</servlet-name>
+		<url-pattern>/verify.do</url-pattern>
 	</servlet-mapping>
 </web-app> 

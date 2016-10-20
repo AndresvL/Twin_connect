@@ -17,7 +17,6 @@ public class main {
 		String token = "b7281cf5256346a5f7d6e5ffef6462d7";
 		String softwareToken = "622a8ef3a712344ef07a4427550ae1e2b38e5342";
 		OAuth control = new OAuth();
-		control.getAccessToken(consumer_key, consumer_secret, "https://login.twinfield.com/oauth/initiate.aspx");
-		
+		control.getTempToken(consumer_key, consumer_secret);
 	}
 }

@@ -9,15 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuth;
 
-public class OAuthServlet extends HttpServlet {
+public class VerifyServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String token = req.getParameter("token");
-		String secret = req.getParameter("secret");
+		String temporaryToken = req.getParameter("oauth_token");
+		String temporaryVerifier = req.getParameter("oauth_verifier");
 		OAuth oauth = new OAuth();
-		String tempToken = oauth.getTempToken(token, secret);
-		if (tempToken != null) {
-			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + tempToken);
+		String accessToken = oauth.getAccessToken(temporaryToken, temporaryVerifier);
+		if (accessToken != null) {
+			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + accessToken);
 		}
 	}
 }
-	
