@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/signpost-commonshttp-1.2.1.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/signpost-core-1.2.1.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

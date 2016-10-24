@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuth;
+import controller.SoapHandler;
 import model.Token;
 
 public class OAuthServlet extends HttpServlet {
@@ -27,7 +28,8 @@ public class OAuthServlet extends HttpServlet {
 			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + checkToken.getTempToken());
 			System.out.println("No AccessToken found in database!");
 		}else{
-			System.out.println("AccessToken found in database");
+			String sessionID = SoapHandler.getSession(checkToken);
+			System.out.println("AccessToken found in database + sessionID=" + sessionID);
 		}
 	}
 }

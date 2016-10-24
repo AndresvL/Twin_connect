@@ -16,15 +16,13 @@ public class SoapHandler {
 			// Create SOAP Connection
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
 			SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-
 			// Send SOAP Message to SOAP Server
 			String url = "https://login.twinfield.com/webservices/session.asmx?/";
 			SOAPMessage soapResponse = soapConnection.call(createSOAPSession(token), url);
-			
+			printSOAPResponse(soapResponse);
 			//Set session
 			SOAPEnvelope soapPart = soapResponse.getSOAPPart().getEnvelope();
 			sessionID = soapPart.getHeader().getFirstChild().getFirstChild().getTextContent();
-			
 			soapConnection.close();
 		} catch (Exception e) {
 			System.err.println("Error occurred while sending SOAP Request to Server");
@@ -57,7 +55,10 @@ public class SoapHandler {
 		SOAPElement soapBodyElem4 = soapBodyElem.addChildElement("accessSecret");
 		soapBodyElem4.addTextNode(token.getAccessSecret());
 		soapMessage.saveChanges();
-
+		/* Print the request message */
+		System.out.print("Request SOAP Message SESSION= ");
+		soapMessage.writeTo(System.out);
+		System.out.println();
 		return soapMessage;
 	}
 	
