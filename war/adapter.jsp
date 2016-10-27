@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+	
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -12,15 +14,15 @@
 			value="818784741B7543C7AE95CE5BFB783DF2" required autofocus>
 		<label>Consumer secret</label> <input type="text" name="secret"
 			value="F441FB65B6AA42C995F9FAF3662E8A10" required> <label>link</label>
-		<input type="text" name="link"
-			Q
-			value="https://login.twinfield.com/oauth/initiate.aspx" required>
+		<input type="text" name="link" value="https://login.twinfield.com/oauth/initiate.aspx" required>
 		<input type="submit" value="Get Access" />
 	</form>
-	<div><%= session.getAttribute("session")%></div>
-	<div><%= session.getAttribute("soap")%></div>
+	<div>${session}</div>
+	
+	<div><c:out value="${soap}" />
+	</div>
 	<form action="import.do">
-		<input type="submit" value="GetUser" name="category"/>
+		<input type="submit" value="getUser" name="category"/>
 		<input type="submit" value="getOffice" name="category"/>
 	</form>
 </body>

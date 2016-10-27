@@ -1,16 +1,22 @@
 package controller;
 
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.*;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
 import model.Token;
 
 public class SoapHandler {
-
+	private static String cluster;
 	public static String getSession(Token token) {
 		String sessionID = null;
-		String cluster = null;
 		try {
 			// Create SOAP Connection
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
@@ -18,7 +24,6 @@ public class SoapHandler {
 			// Send SOAP Message to SOAP Server
 			String url = "https://login.twinfield.com/webservices/session.asmx?/";
 			SOAPMessage soapResponse = soapConnection.call(createSOAPSession(token), url);
-			printSOAPResponse(soapResponse);
 			// Set session
 			SOAPEnvelope soapPart = soapResponse.getSOAPPart().getEnvelope();
 			sessionID = soapPart.getHeader().getFirstChild().getFirstChild().getTextContent();
@@ -59,7 +64,7 @@ public class SoapHandler {
 		return soapMessage;
 	}
 
-	public static SOAPMessage createSOAP(String session, String data) {
+	public static Document createSOAP(String session, String data) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
@@ -67,7 +72,7 @@ public class SoapHandler {
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();			
 			soapConnection = soapConnectionFactory.createConnection();
 			// Send SOAP Message to SOAP Server
-			String url = "https://c3.twinfield.com/webservices/processxml.asmx?wsdl";
+			String url = cluster + "/webservices/processxml.asmx?wsdl";
 			MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
 			SOAPMessage soapMessage = messageFactory.createMessage();
 
@@ -79,33 +84,42 @@ public class SoapHandler {
 			setHeader(envelope, session);
 
 			// SOAP Body
-			setBody(envelope, data);
+			setReadBody(envelope, data);
 
 			soapMessage.saveChanges();
-
-			/* Print the request message */
-			System.out.print("Request SOAP Message USER= ");
-			soapMessage.writeTo(System.out);
-			System.out.println();
+			
 			soapResponse = soapConnection.call(soapMessage, url);
-			printSOAPResponse(soapResponse);
 			soapConnection.close();
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return soapResponse;
+		return getXmlString(soapResponse);
 	}
-
-	private static void setBody(SOAPEnvelope envelope, String data) throws SOAPException {
+	//Converts String to XML
+	private static Document getXmlString(SOAPMessage soapResponse) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
+        DocumentBuilder builder;     
+        Document doc = null;
+        try{  
+        	SOAPEnvelope soapPart = soapResponse.getSOAPPart().getEnvelope();
+     		String xmlString = soapPart.getBody().getFirstChild().getFirstChild().getTextContent();
+            builder = factory.newDocumentBuilder();  
+            doc = builder.parse(new InputSource( new StringReader(xmlString))); 
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        } 
+        return doc;
+    }
+	//Set a body with parameter read
+	private static void setReadBody(SOAPEnvelope envelope, String data) throws SOAPException {
 		SOAPBody soapBody = envelope.getBody();
 		SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString", "", "http://www.twinfield.com/");
 		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
 		soapBodyElem1.addTextNode("<![CDATA[<read>" + data + "</read>]]>");
 	}
-
+	//Global header
 	private static void setHeader(SOAPEnvelope envelope, String session) throws SOAPException {
 		envelope.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
 		envelope.addNamespaceDeclaration("xsd", "http://www.w3.org/2001/XMLSchema");
@@ -116,6 +130,7 @@ public class SoapHandler {
 		SOAPElement soapHeadElem1 = soapHeadElem.addChildElement("SessionID");
 		soapHeadElem1.addTextNode(session);
 	}
+	
 
 	private static void printSOAPResponse(SOAPMessage soapResponse) throws Exception {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
