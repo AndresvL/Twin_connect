@@ -26,7 +26,7 @@ public class TokenDAO {
 	public Token getAccessToken() throws SQLException{
 		Token t = null;
 		Connection con = createDatabaseConnection();
-		output = statement.executeQuery("SELECT * FROM oauthcredentials");
+		output = statement.executeQuery("SELECT * FROM credentials");
 		while (output.next()){
 			String accessToken = output.getString("accessToken");
 			String accessSecret = output.getString("accessSecret");
@@ -42,7 +42,8 @@ public class TokenDAO {
 
 	public void saveAccesToken(Token t) throws SQLException {	
 		Connection con = createDatabaseConnection();
-		statement.execute("INSERT INTO oauthcredentials (accessToken, accessSecret, consumerToken, consumerSecret)"+ 
+		System.out.println("Token moet gesaved worden");
+		statement.execute("INSERT INTO credentials (accessToken, accessSecret, consumerToken, consumerSecret)"+ 
 		"VALUES ('" + t.getAccessToken() + "','" + t.getAccessSecret() + "','" + t.getConsumerToken() + "','"+ t.getConsumerSecret() + "')");
 		con.close();
 	}

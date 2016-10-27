@@ -23,4 +23,13 @@
 		<servlet-name>oauth_verify servlet</servlet-name>
 		<url-pattern>/verify.do</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>import data servlet</servlet-name>
+		<servlet-class>servlet.ImportDataServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>import data servlet</servlet-name>
+		<url-pattern>/import.do</url-pattern>
+	</servlet-mapping>
 </web-app> 

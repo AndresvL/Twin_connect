@@ -17,5 +17,11 @@
 			value="https://login.twinfield.com/oauth/initiate.aspx" required>
 		<input type="submit" value="Get Access" />
 	</form>
+	<div><%= session.getAttribute("session")%></div>
+	<div><%= session.getAttribute("soap")%></div>
+	<form action="import.do">
+		<input type="submit" value="GetUser" name="category"/>
+		<input type="submit" value="getOffice" name="category"/>
+	</form>
 </body>
 </html>

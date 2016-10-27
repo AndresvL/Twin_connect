@@ -1,3 +1,5 @@
-/controller/
 /DAO/
+/controller/
+/dbUtil/
+/model/
 /servlet/

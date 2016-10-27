@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +18,10 @@ public class VerifyServlet extends HttpServlet {
 		String temporaryVerifier = req.getParameter("oauth_verifier");
 		OAuth oauth = new OAuth();
 		Token token = oauth.getAccessToken(temporaryToken, temporaryVerifier);
-//		String sessionID = SoapHandler.getSession(token);
-//		SoapHandler.getUser(sessionID);
-		resp.sendRedirect("http://localhost:8080/Twinfield_connector/");
+		String sessionID = SoapHandler.getSession(token);
+		RequestDispatcher rd = null;
+		rd = req.getRequestDispatcher("adapter.jsp");
+		req.getSession().setAttribute("session", sessionID);
+		rd.forward(req, resp);
 	}
 }

@@ -3,6 +3,7 @@ package servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,10 @@ public class OAuthServlet extends HttpServlet {
 		}else{
 			String sessionID = SoapHandler.getSession(checkToken);
 			System.out.println("AccessToken found in database + sessionID=" + sessionID);
+			RequestDispatcher rd = null;
+			rd = req.getRequestDispatcher("adapter.jsp");
+			req.getSession().setAttribute("session", sessionID);
+			rd.forward(req, resp);
 		}
 	}
 }
