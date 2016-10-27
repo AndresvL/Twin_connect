@@ -20,26 +20,19 @@ public class ImportDataServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String button = req.getParameter("category");
+		String code = req.getParameter("code");
+		System.out.println("code " + code);	
 		String session = (String) req.getSession().getAttribute("session");
-		Document doc = null;
+		String responseString = null;
 		if (button.equals("getOffice")) {
-			doc = SoapHandler.createSOAP(session, "<type>office</type><code>NLA005593</code>");
+			responseString = SoapHandler.createSOAP(session, "<type>office</type><code>"+code+"</code>");
 		}
 		if (button.equals("getUser")) {
-			doc = SoapHandler.createSOAP(session, "<type>user</type><code>COM001699</code>");
+			responseString = SoapHandler.createSOAP(session, "<type>user</type><code>"+code+"</code>");
 		}
-
-		OutputFormat format = new OutputFormat(doc);
-		format.setLineWidth(65);
-		format.setIndenting(true);
-		format.setIndent(2);
-		Writer out = new StringWriter();
-		XMLSerializer serializer = new XMLSerializer(out, format);
-		serializer.serialize(doc);
-		String content = out.toString();
-		System.out.println("content " + content);
+		System.out.println("content " + responseString);
 		RequestDispatcher rd = req.getRequestDispatcher("adapter.jsp");
-		req.getSession().setAttribute("soap", content);
+		req.getSession().setAttribute("soap", responseString);
 		rd.forward(req, resp);
 	}
 }

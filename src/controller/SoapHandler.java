@@ -1,6 +1,8 @@
 package controller;
 
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,6 +12,9 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 import model.Token;
 
@@ -64,7 +69,7 @@ public class SoapHandler {
 		return soapMessage;
 	}
 
-	public static Document createSOAP(String session, String data) {
+	public static String createSOAP(String session, String data) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
@@ -95,22 +100,36 @@ public class SoapHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//Returns a formatted XML string
 		return getXmlString(soapResponse);
 	}
 	//Converts String to XML
-	private static Document getXmlString(SOAPMessage soapResponse) {
+	private static String getXmlString(SOAPMessage soapResponse) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();  
-        DocumentBuilder builder;     
-        Document doc = null;
+        DocumentBuilder builder;  
+        String content = null;
         try{  
+        	//getXMLString from SOAP response
         	SOAPEnvelope soapPart = soapResponse.getSOAPPart().getEnvelope();
      		String xmlString = soapPart.getBody().getFirstChild().getFirstChild().getTextContent();
             builder = factory.newDocumentBuilder();  
-            doc = builder.parse(new InputSource( new StringReader(xmlString))); 
+            Document doc = builder.parse(new InputSource( new StringReader(xmlString))); 
+            
+            //Format the string
+            OutputFormat format = new OutputFormat(doc);
+    		format.setLineWidth(65);
+    		format.setIndenting(true);
+    		format.setIndent(2);
+    		
+    		Writer out = new StringWriter();
+    		XMLSerializer serializer = new XMLSerializer(out, format);
+    		serializer.serialize(doc);
+    		content = out.toString();
         } catch (Exception e) {  
             e.printStackTrace();  
         } 
-        return doc;
+       
+        return content;
     }
 	//Set a body with parameter read
 	private static void setReadBody(SOAPEnvelope envelope, String data) throws SOAPException {
@@ -129,15 +148,5 @@ public class SoapHandler {
 		SOAPElement soapHeadElem = soapHead.addChildElement("Header", "", "http://www.twinfield.com/");
 		SOAPElement soapHeadElem1 = soapHeadElem.addChildElement("SessionID");
 		soapHeadElem1.addTextNode(session);
-	}
-	
-
-	private static void printSOAPResponse(SOAPMessage soapResponse) throws Exception {
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		Source sourceContent = soapResponse.getSOAPPart().getContent();
-		System.out.print("\nResponse SOAP Message = ");
-		StreamResult result = new StreamResult(System.out);
-		transformer.transform(sourceContent, result);
 	}
 }

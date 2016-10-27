@@ -19,9 +19,10 @@
 	</form>
 	<div>${session}</div>
 	
-	<div><c:out value="${soap}" />
-	</div>
+	<textarea rows="30" cols="70"  style="border:none;"><c:out value="${soap}" /></textarea>
+	
 	<form action="import.do">
+	    <input type="text" placeholder="code" name="code" required>
 		<input type="submit" value="getUser" name="category"/>
 		<input type="submit" value="getOffice" name="category"/>
 	</form>
