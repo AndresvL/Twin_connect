@@ -25,6 +25,11 @@
 	    <input type="text" placeholder="code" name="code" required>
 		<input type="submit" value="getUser" name="category"/>
 		<input type="submit" value="getOffice" name="category"/>
+		<input type="submit" value="getEmployees" name="category"/>
+		<input type="submit" value="getMaterials" name="category"/>
+		<input type="submit" value="getProjects" name="category"/>
+		<input type="submit" value="getRelations" name="category"/>
+		<input type="submit" value="getHourTypes" name="category"/>
 	</form>
 </body>
 </html>

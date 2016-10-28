@@ -14,13 +14,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import DAO.TokenDAO;
-import model.Token;
+import object.Token;
 
 import java.util.Map.Entry;
 
 // OAuth 1.0
 public class OAuth {
 	// Does this still work if there're multiple users using this methode?
+	@SuppressWarnings("unused")
 	private static String callbackConfirmed = null;
 	private static Token token = null;
 	private TokenDAO tokenDao = new TokenDAO();

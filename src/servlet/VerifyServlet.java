@@ -10,9 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuth;
 import controller.SoapHandler;
-import model.Token;
+import object.Token;
 
 public class VerifyServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String temporaryToken = req.getParameter("oauth_token");
 		String temporaryVerifier = req.getParameter("oauth_verifier");

@@ -2,7 +2,7 @@ package DAO;
 
 import java.sql.*;
 
-import model.Token;
+import object.Token;
 
 public class TokenDAO {
 	private Connection con = null;

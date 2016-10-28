@@ -11,9 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuth;
 import controller.SoapHandler;
-import model.Token;
+import object.Token;
 
 public class OAuthServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String token = req.getParameter("token");
 		String secret = req.getParameter("secret");
