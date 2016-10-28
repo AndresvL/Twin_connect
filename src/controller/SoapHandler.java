@@ -109,7 +109,7 @@ public class SoapHandler {
 		return getFormatString(xmlString);
 	}
 
-	public static String createSOAPSearch(String session, Search object) {
+	public static SOAPMessage createSOAPSearch(String session, Search object) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
@@ -146,7 +146,8 @@ public class SoapHandler {
 		}
 
 		// Returns a formatted XML string
-		return getFormatString(soapString);
+//		return getFormatString(soapString);
+		return soapResponse;
 	}
 
 	private static void setFinderBody(SOAPEnvelope envelope, Search object) throws SOAPException {
