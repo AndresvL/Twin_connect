@@ -74,7 +74,6 @@ public class SoapHandler {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
-		SOAPEnvelope soapEnvelope;
 		String xmlString = null;
 		try {
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
@@ -97,7 +96,8 @@ public class SoapHandler {
 			soapMessage.saveChanges();
 
 			soapResponse = soapConnection.call(soapMessage, url);
-			xmlString = soapResponse.getSOAPPart().getEnvelope().getBody().getFirstChild().getFirstChild().getTextContent();
+			xmlString = soapResponse.getSOAPPart().getEnvelope().getBody().getFirstChild().getFirstChild()
+					.getTextContent();
 			soapConnection.close();
 
 		} catch (Exception e) {
@@ -105,34 +105,8 @@ public class SoapHandler {
 			e.printStackTrace();
 		}
 		// Returns a formatted XML string
-		
+
 		return getFormatString(xmlString);
-	}
-
-	// Converts String to XML
-	private static String getFormatString(String soapResponse) {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder;
-		String content = null;
-		try {
-			builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
-
-			// Format the string
-			OutputFormat format = new OutputFormat(doc);
-			format.setLineWidth(65);
-			format.setIndenting(true);
-			format.setIndent(2);
-
-			Writer out = new StringWriter();
-			XMLSerializer serializer = new XMLSerializer(out, format);
-			serializer.serialize(doc);
-			content = out.toString();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return content;
 	}
 
 	public static String createSOAPSearch(String session, Search object) {
@@ -170,7 +144,7 @@ public class SoapHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// Returns a formatted XML string
 		return getFormatString(soapString);
 	}
@@ -194,7 +168,7 @@ public class SoapHandler {
 		if (object.getOptions() != null) {
 			for (int i = 0; i < options.length; i++) {
 				SOAPElement soapBodyElem7 = soapBodyElem6.addChildElement(options[i][0]);
-				for(int j = 2; j < options.length; j++){
+				for (int j = 2; j < options[i].length; j++) {
 					SOAPElement soapBodyElem8 = soapBodyElem7.addChildElement(options[i][1]);
 					soapBodyElem8.addTextNode(options[i][j]);
 				}
@@ -220,6 +194,31 @@ public class SoapHandler {
 		SOAPElement soapHeadElem = soapHead.addChildElement("Header", "", "http://www.twinfield.com/");
 		SOAPElement soapHeadElem1 = soapHeadElem.addChildElement("SessionID");
 		soapHeadElem1.addTextNode(session);
+	}
+
+	// Converts String to XML
+	private static String getFormatString(String soapResponse) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+		String content = null;
+		try {
+			builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
+
+			// Format the string
+			OutputFormat format = new OutputFormat(doc);
+			format.setLineWidth(65);
+			format.setIndenting(true);
+			format.setIndent(2);
+
+			Writer out = new StringWriter();
+			XMLSerializer serializer = new XMLSerializer(out, format);
+			serializer.serialize(doc);
+			content = out.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content;
 	}
 
 }
