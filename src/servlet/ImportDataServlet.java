@@ -20,27 +20,31 @@ public class ImportDataServlet extends HttpServlet {
 		SOAPMessage response = null;
 		String[][] options = null;
 		Search object;
-
-		switch (button) {
-
+		
+		switch (button) {		
 		case "getEmployees":
+			System.out.println("button " + button);
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 			options = new String[][] { { "ArrayOfString", "string", "office", code } };
 			object = new Search("USR", "*", 0, 1, 100, options);
 			response = SoapHandler.createSOAPSearch(session, object);
+			break;
 		case "getMaterials":
+			System.out.println("button " + button);
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 //			options = new String[][] { { "ArrayOfString", "string", "office", code } };
 			object = new Search("ART", "*", 0, 1, 100, options);
 			response = SoapHandler.createSOAPSearch(session, object);
+			break;
 		case "getProjects":
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 			options = new String[][] { { "ArrayOfString", "string", "office", code } };
 			object = new Search("PRJ", "*", 0, 1, 100, options);
 			response = SoapHandler.createSOAPSearch(session, object);
+			break;
 		case "getRelations":
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
@@ -53,12 +57,12 @@ public class ImportDataServlet extends HttpServlet {
 			options = new String[][] { { "ArrayOfString", "string", "office", code } };
 			object = new Search("USR", "*", 0, 1, 100, options);
 			response = SoapHandler.createSOAPSearch(session, object);
+			break;
 		}
 
 		// Print SOAP response on screen
-//		System.out.println("content " + responseString);
-//		RequestDispatcher rd = req.getRequestDispatcher("adapter.jsp");
-//		req.getSession().setAttribute("soap", responseString);
-//		rd.forward(req, resp);
+		RequestDispatcher rd = req.getRequestDispatcher("adapter.jsp");
+		req.getSession().setAttribute("soap", "");
+		rd.forward(req, resp);
 	}
 }

@@ -4,12 +4,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.soap.*;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
@@ -114,6 +118,7 @@ public class SoapHandler {
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
 		String soapString = null;
+		ArrayList<String> allData = null;
 		try {
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
 			soapConnection = soapConnectionFactory.createConnection();
@@ -139,15 +144,35 @@ public class SoapHandler {
 			soapResponse.writeTo(out);
 			soapString = new String(out.toByteArray());
 			soapConnection.close();
-
+			
+			allData = new ArrayList<String>();
+			//Get data from SOAP message
+			//<Body><SearchResponse><data>
+			Node data = soapResponse.getSOAPPart().getEnvelope().getBody().getFirstChild().getLastChild();
+			Element element = null;
+			if(data.getNodeType() == Node.ELEMENT_NODE){
+				element = (Element)data;
+			}
+			//<TotalRows>
+			String totalRows = data.getFirstChild().getTextContent();
+			System.out.println("rows " + totalRows);
+//			<Columns>
+			NodeList columns = element.getElementsByTagName("columns");
+			for(int i = 1; i < columns.getLength(); i++){
+				allData.add(columns.item(i).getTextContent());
+				if(allData != null){
+					String temp = allData.get(0);
+					allData.set(0, temp + "," +columns.item(i).getTextContent());
+				}
+				System.out.println("alldata " + allData.get(i));
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// Returns a formatted XML string
-//		return getFormatString(soapString);
+		
 		return soapResponse;
+
 	}
 
 	private static void setFinderBody(SOAPEnvelope envelope, Search object) throws SOAPException {
