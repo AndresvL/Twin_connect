@@ -1,14 +1,15 @@
 package object;
 
-import org.w3c.dom.Text;
 
 public class Material {
 	private String code, unit;
-	private Text description;
+	private String description;
 	private double price;
+	private String subCode;
 	
-	public Material(String c, String u, Text des, double p){
+	public Material(String c, String subc, String u, String des, double p){
 		this.code = c;
+		this.setSubCode(subc);
 		this.unit = u;
 		this.description = des;
 		this.price = p;
@@ -26,10 +27,10 @@ public class Material {
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
-	public Text getDescription() {
+	public String getDescription() {
 		return description;
 	}
-	public void setDescription(Text description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 	public double getPrice() {
@@ -37,6 +38,14 @@ public class Material {
 	}
 	public void setPrice(double price) {
 		this.price = price;
+	}
+
+	public String getSubCode() {
+		return subCode;
+	}
+
+	public void setSubCode(String subCode) {
+		this.subCode = subCode;
 	}
 	
 }

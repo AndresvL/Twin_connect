@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import object.Material;
 import object.Project;
 import object.Search;
 import object.Token;
@@ -107,11 +108,12 @@ public class SoapHandler {
 		if(type.equals("project")){
 			obj = getProjectXML(xmlString);
 		}
-		if(type.equals("article")){
-//			obj = getArticleXML(xmlString);
+		if(type.equals("material")){
+			obj = getMaterialXML(xmlString);
 		}
 		return obj;
 	}
+
 
 	// See Finder methode from Twinfield
 	public static ArrayList<String> createSOAPSearch(String session, Search object) {
@@ -197,7 +199,7 @@ public class SoapHandler {
 		soapHeadElem1.addTextNode(session);
 	}
 
-	// Converts String to XML
+	// Converts String to Project Object
 	private static Object getProjectXML(String soapResponse) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
@@ -238,7 +240,41 @@ public class SoapHandler {
 			e.printStackTrace();
 		}
 		return p;
-
+	}
+	
+	// Converts String to Material Object
+	private static Object getMaterialXML(String soapResponse) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+		Material m = null;
+		try {
+			builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
+			//<article>
+			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
+				//<header>
+				NodeList headerData = allData.item(0).getChildNodes();
+					//<code>
+					String code = headerData.item(1).getTextContent();
+				//<lines>
+				NodeList lines = allData.item(1).getChildNodes();
+				String subcode = null, unit = null, description = null;
+				double price = 0d;
+				for(int i = 0; i < lines.getLength(); i++){
+					//<line>
+					NodeList line = lines.item(i).getChildNodes();
+					price = Double.parseDouble(line.item(0).getTextContent());
+					unit = line.item(2).getTextContent();
+					description = line.item(3).getTextContent();
+					subcode = line.item(5).getTextContent();
+				}					
+			System.out.println("code " + code+ " subcode " + subcode+" name " + description+" unit " + unit+" price " + price);
+			m = new Material(code, subcode, unit, description, price);		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return m;
 	}
 
 	public static ArrayList<String> setArrayList(SOAPMessage response) {

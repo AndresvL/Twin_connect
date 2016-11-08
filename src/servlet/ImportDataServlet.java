@@ -11,6 +11,7 @@ import javax.servlet.http.*;
 import DAO.ObjectDAO;
 import controller.SoapHandler;
 import object.Employee;
+import object.Material;
 import object.Project;
 import object.Search;
 
@@ -23,15 +24,15 @@ public class ImportDataServlet extends HttpServlet {
 		String session = (String) req.getSession().getAttribute("session");
 		ArrayList<String> responseArray = null;
 		String[][] options = null;
-		Search object;
+		Search searchObject;
 
 		switch (button) {
 		case "getEmployees":
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 			options = new String[][] { { "ArrayOfString", "string", "office", code } };
-			object = new Search("USR", "*", 0, 1, 100, options);
-			responseArray = SoapHandler.createSOAPSearch(session, object);
+			searchObject = new Search("USR", "*", 0, 1, 100, options);
+			responseArray = SoapHandler.createSOAPSearch(session, searchObject);
 			ArrayList<Employee> emp = new ArrayList<Employee>();
 			// Split data from ArrayList
 			for (int i = 0; i < responseArray.size(); i++) {
@@ -49,16 +50,29 @@ public class ImportDataServlet extends HttpServlet {
 		case "getMaterials":
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
-			options = new String[][] { { "ArrayOfString", "string", "office", code } };
-			object = new Search("ART", "*", 0, 1, 100, options);
-			responseArray = SoapHandler.createSOAPSearch(session, object);
+			options = null;
+			searchObject = new Search("ART", "*", 0, 1, 100, options);
+			responseArray = SoapHandler.createSOAPSearch(session, searchObject);
+			ArrayList<Material> materials = new ArrayList<Material>();
+			for (int i = 0; i < responseArray.size(); i++) {
+				String[] parts = responseArray.get(i).split(",");
+				Material m = (Material) SoapHandler.createSOAPXML(session,
+						"<type>article</type><office>nla005594</office><code>" + parts[0] + "</code>", "material");
+				materials.add(m);
+			}
+			try {
+				ObjectDAO.saveMaterials(materials);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case "getProjects":
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 			options = new String[][] { { "ArrayOfString", "string", "dimtype", "PRJ" } };
-			object = new Search("DIM", "*", 0, 1, 100, options);
-			responseArray = SoapHandler.createSOAPSearch(session, object);
+			searchObject = new Search("DIM", "*", 0, 1, 100, options);
+			responseArray = SoapHandler.createSOAPSearch(session, searchObject);
 			ArrayList<Project> projects = new ArrayList<Project>();
 			for (int i = 0; i < responseArray.size(); i++) {
 				String[] parts = responseArray.get(i).split(",");
@@ -77,8 +91,8 @@ public class ImportDataServlet extends HttpServlet {
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 			options = new String[][] { { "ArrayOfString", "string", "dimtype", "DEB" } };
-			object = new Search("DIM", "*", 0, 1, 100, options);
-			responseArray = SoapHandler.createSOAPSearch(session, object);
+			searchObject = new Search("DIM", "*", 0, 1, 100, options);
+			responseArray = SoapHandler.createSOAPSearch(session, searchObject);
 			// Split data from ArrayList
 //			for (int i = 0; i < responseArray.size(); i++) {
 //				String[] parts = responseArray.get(i).split(",");
@@ -97,8 +111,8 @@ public class ImportDataServlet extends HttpServlet {
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
 			options = new String[][] { { "ArrayOfString", "string", "office", code } };
-			object = new Search("USR", "*", 0, 1, 100, options);
-			responseArray = SoapHandler.createSOAPSearch(session, object);
+			searchObject = new Search("USR", "*", 0, 1, 100, options);
+			responseArray = SoapHandler.createSOAPSearch(session, searchObject);
 			break;
 		}
 		String temp = "arrayList:";

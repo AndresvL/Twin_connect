@@ -27,7 +27,7 @@ public class ObjectDAO {
 		con.close();
 	}
 	
-	public static void saveMaterial(ArrayList<Material> mat) throws SQLException {
+	public static void saveMaterials(ArrayList<Material> mat) throws SQLException {
 		Connection con = DBConnection.createDatabaseConnection();
 		statement = con.createStatement();
 		for (Material m : mat) {
