@@ -1,8 +1,6 @@
 package controller;
 
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,9 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
+import object.Project;
 import object.Search;
 import object.Token;
 
@@ -73,11 +69,12 @@ public class SoapHandler {
 		return soapMessage;
 	}
 
-	public static String createSOAPXML(String session, String data) {
+	public static Object createSOAPXML(String session, String data, String type) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
 		String xmlString = null;
+		Object obj = new Object();
 		try {
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
 			soapConnection = soapConnectionFactory.createConnection();
@@ -107,11 +104,16 @@ public class SoapHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// Returns a formatted XML string
-
-		return getFormatString(xmlString);
+		if(type.equals("project")){
+			obj = getProjectXML(xmlString);
+		}
+		if(type.equals("article")){
+//			obj = getArticleXML(xmlString);
+		}
+		return obj;
 	}
-	//See Finder methode from Twinfield
+
+	// See Finder methode from Twinfield
 	public static ArrayList<String> createSOAPSearch(String session, Search object) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
@@ -138,12 +140,12 @@ public class SoapHandler {
 
 			soapResponse = soapConnection.call(soapMessage, url);
 			soapConnection.close();
-			
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return setArrayList(soapResponse);
 
 	}
@@ -196,30 +198,49 @@ public class SoapHandler {
 	}
 
 	// Converts String to XML
-	private static String getFormatString(String soapResponse) {
+	private static Object getProjectXML(String soapResponse) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder;
-		String content = null;
+		Project p = null;
 		try {
 			builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
-
-			// Format the string
-			OutputFormat format = new OutputFormat(doc);
-			format.setLineWidth(65);
-			format.setIndenting(true);
-			format.setIndent(2);
-
-			Writer out = new StringWriter();
-			XMLSerializer serializer = new XMLSerializer(out, format);
-			serializer.serialize(doc);
-			content = out.toString();
+			//<dimension>
+			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
+				//<code>
+				String code = allData.item(2).getTextContent();
+				//<uid>
+				String code_ext = allData.item(3).getTextContent();
+				//<name>
+				String name = allData.item(4).getTextContent();
+				//<dimension status>
+				String status = doc.getChildNodes().item(0).getAttributes().getNamedItem("status").getNodeValue();
+				//<projects>
+				NodeList projects = doc.getElementsByTagName("projects").item(0).getChildNodes();
+					//<invoicedescription>
+					String description = projects.item(0).getTextContent();
+					//<validfrom>
+					String dateStart = projects.item(1).getTextContent();
+					//<validfrom>
+					String dateEnd = projects.item(2).getTextContent();
+					//<customer>
+					String debtorNumber = projects.item(4).getTextContent();
+					//active
+					int active = 0;
+					if(status.equals("active")){
+						active = 1;
+					}
+			
+			System.out.println("code " + code+" name " + name+" code_ext " + code_ext+" status " + status+" description " + description+" debtor " + debtorNumber+" date_start " + dateStart+" date_end " + dateEnd+" active " + active);
+			p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateStart, description, 0, active);		
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return content;
+		return p;
+
 	}
-	
+
 	public static ArrayList<String> setArrayList(SOAPMessage response) {
 		ArrayList<String> allItems = new ArrayList<String>();
 		try {
@@ -237,17 +258,16 @@ public class SoapHandler {
 			// <Columns>
 			NodeList columns = allData.item(1).getChildNodes();
 			// <Items>
-			NodeList items = allData.item(2).getChildNodes();			
+			NodeList items = allData.item(2).getChildNodes();
 			for (int i = 0; i < totalRows; i++) {
 				String temp = null;
 				// <ArrayOfString>
 				NodeList content = items.item(i).getChildNodes();
 				for (int j = 0; j < columns.getLength(); j++) {
 					// <string>
-					if(temp == null){
+					if (temp == null) {
 						temp = content.item(j).getTextContent() + ",";
-					}
-					else if ((j+1) != columns.getLength()) {
+					} else if ((j + 1) != columns.getLength()) {
 						temp += content.item(j).getTextContent() + ",";
 					} else {
 						temp += content.item(j).getTextContent();
@@ -262,5 +282,31 @@ public class SoapHandler {
 		return allItems;
 
 	}
+
+	// Converts String to Formatted XML
+	// private static String getFormatString(String soapResponse) {
+	// DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	// DocumentBuilder builder;
+	// String content = null;
+	// try {
+	// builder = factory.newDocumentBuilder();
+	// Document doc = builder.parse(new InputSource(new
+	// StringReader(soapResponse)));
+	//
+	// // Format the string
+	// OutputFormat format = new OutputFormat(doc);
+	// format.setLineWidth(65);
+	// format.setIndenting(true);
+	// format.setIndent(2);
+	//
+	// Writer out = new StringWriter();
+	// XMLSerializer serializer = new XMLSerializer(out, format);
+	// serializer.serialize(doc);
+	// content = out.toString();
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return content;
+	// }
 
 }
