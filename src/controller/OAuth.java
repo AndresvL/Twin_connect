@@ -134,7 +134,7 @@ public class OAuth {
 			response.close();
 		}
 		try {
-			tokenDao.saveAccesToken(token);
+			tokenDao.saveAccessToken(token);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

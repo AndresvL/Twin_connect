@@ -1,6 +1,5 @@
 package controller;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -112,13 +111,11 @@ public class SoapHandler {
 
 		return getFormatString(xmlString);
 	}
-
-	public static SOAPMessage createSOAPSearch(String session, Search object) {
+	//See Finder methode from Twinfield
+	public static ArrayList<String> createSOAPSearch(String session, Search object) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
-		String soapString = null;
-		ArrayList<String> allData = null;
 		try {
 			SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
 			soapConnection = soapConnectionFactory.createConnection();
@@ -140,38 +137,14 @@ public class SoapHandler {
 			soapMessage.saveChanges();
 
 			soapResponse = soapConnection.call(soapMessage, url);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			soapResponse.writeTo(out);
-			soapString = new String(out.toByteArray());
 			soapConnection.close();
 			
-			allData = new ArrayList<String>();
-			//Get data from SOAP message
-			//<Body><SearchResponse><data>
-			Node data = soapResponse.getSOAPPart().getEnvelope().getBody().getFirstChild().getLastChild();
-			Element element = null;
-			if(data.getNodeType() == Node.ELEMENT_NODE){
-				element = (Element)data;
-			}
-			//<TotalRows>
-			String totalRows = data.getFirstChild().getTextContent();
-			System.out.println("rows " + totalRows);
-//			<Columns>
-			NodeList columns = element.getElementsByTagName("columns");
-			for(int i = 1; i < columns.getLength(); i++){
-				allData.add(columns.item(i).getTextContent());
-				if(allData != null){
-					String temp = allData.get(0);
-					allData.set(0, temp + "," +columns.item(i).getTextContent());
-				}
-				System.out.println("alldata " + allData.get(i));
-			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		return soapResponse;
+		return setArrayList(soapResponse);
 
 	}
 
@@ -245,6 +218,49 @@ public class SoapHandler {
 			e.printStackTrace();
 		}
 		return content;
+	}
+	
+	public static ArrayList<String> setArrayList(SOAPMessage response) {
+		ArrayList<String> allItems = new ArrayList<String>();
+		try {
+			// Get data from SOAP message
+			// <Body><SearchResponse><data>
+			Node data = response.getSOAPPart().getEnvelope().getBody().getFirstChild().getLastChild();
+			Element element = null;
+			if (data.getNodeType() == Node.ELEMENT_NODE) {
+				element = (Element) data;
+			}
+
+			NodeList allData = element.getChildNodes();
+			// <TotalRows>
+			int totalRows = Integer.parseInt(allData.item(0).getFirstChild().getTextContent());
+			// <Columns>
+			NodeList columns = allData.item(1).getChildNodes();
+			// <Items>
+			NodeList items = allData.item(2).getChildNodes();			
+			for (int i = 0; i < totalRows; i++) {
+				String temp = null;
+				// <ArrayOfString>
+				NodeList content = items.item(i).getChildNodes();
+				for (int j = 0; j < columns.getLength(); j++) {
+					// <string>
+					if(temp == null){
+						temp = content.item(j).getTextContent() + ",";
+					}
+					else if ((j+1) != columns.getLength()) {
+						temp += content.item(j).getTextContent() + ",";
+					} else {
+						temp += content.item(j).getTextContent();
+					}
+				}
+				allItems.add(temp);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return allItems;
+
 	}
 
 }
