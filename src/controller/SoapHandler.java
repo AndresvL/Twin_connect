@@ -15,6 +15,7 @@ import org.xml.sax.InputSource;
 
 import object.Material;
 import object.Project;
+import object.Relation;
 import object.Search;
 import object.Token;
 
@@ -102,7 +103,6 @@ public class SoapHandler {
 			soapConnection.close();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if(type.equals("project")){
@@ -110,6 +110,9 @@ public class SoapHandler {
 		}
 		if(type.equals("material")){
 			obj = getMaterialXML(xmlString);
+		}
+		if(type.equals("relation")){
+			obj = getRelationXML(xmlString);
 		}
 		return obj;
 	}
@@ -267,6 +270,7 @@ public class SoapHandler {
 					unit = line.item(2).getTextContent();
 					description = line.item(3).getTextContent();
 					subcode = line.item(5).getTextContent();
+					//do something with the subMaterials
 				}					
 			System.out.println("code " + code+ " subcode " + subcode+" name " + description+" unit " + unit+" price " + price);
 			m = new Material(code, subcode, unit, description, price);		
@@ -275,6 +279,49 @@ public class SoapHandler {
 			e.printStackTrace();
 		}
 		return m;
+	}
+	
+	// Converts String to Relation Object
+	private static Object getRelationXML(String soapResponse) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+		Relation r = null;
+		try {
+			builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
+			//<dimension>
+			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
+				//<code>
+				String debtorNumber = allData.item(2).getTextContent();
+				//<uid>
+//				String uid = allData.item(3).getTextContent();
+				//<name>
+				String name = allData.item(4).getTextContent();
+				//<financials>
+				NodeList financials = doc.getElementsByTagName("financials").item(0).getChildNodes();
+					//<ebillmail>
+					String emailWorkorder = financials.item(9).getTextContent();
+				//<addresses>
+				NodeList addresses = doc.getElementsByTagName("addresses").item(0).getChildNodes();
+				String phoneNumber = null, email = null, street = null, houseNumber = null, postalCode = null, city = null, remark = null;
+				for(int i = 0; i < addresses.getLength(); i++){
+					NodeList address = addresses.item(i).getChildNodes();
+					phoneNumber = address.item(4).getTextContent();
+					email = address.item(6).getTextContent();
+					String streetNumber[] = address.item(9).getTextContent().split("\\s+");
+					street = streetNumber[0];
+					houseNumber = streetNumber[1];
+					postalCode = address.item(3).getTextContent();
+					city = address.item(2).getTextContent();
+					remark = address.item(8).getTextContent();
+					//do something with the different addresses
+				}
+				r = new Relation(name, debtorNumber, null, phoneNumber, email, emailWorkorder, street, houseNumber, postalCode, city, remark);		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return r;
 	}
 
 	public static ArrayList<String> setArrayList(SOAPMessage response) {

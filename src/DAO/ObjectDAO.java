@@ -9,6 +9,7 @@ import DBUtil.DBConnection;
 import object.Employee;
 import object.Material;
 import object.Project;
+import object.Relation;
 
 public class ObjectDAO {
 	private static Statement statement;
@@ -60,5 +61,26 @@ public class ObjectDAO {
 					+ p.getActive() + "')");
 		}
 		con.close();		
+	}
+
+	public static void saveRelations(ArrayList<Relation> relations) throws SQLException {
+		Connection con = DBConnection.createDatabaseConnection();
+		statement = con.createStatement();
+		for (Relation r : relations) {
+			System.out.println("name " + r.getName());
+			statement.execute("INSERT INTO relations (name, debtor_number, contact, phone_number, email, email_workorder, street, house_number, postal_code, city, remark)" + "VALUES ('" 
+					+ r.getName() + "','"
+					+ r.getDebtorNumber() + "','"
+					+ r.getContact() + "','"
+					+ r.getPhoneNumber() + "','"
+					+ r.getEmail() + "','"
+					+ r.getEmailWorkorder() + "','"
+					+ r.getStreet() + "','"
+					+ r.getHouseNumber() + "','" 
+					+ r.getPostalCode() + "','" 
+					+ r.getCity() + "','" 
+					+ r.getRemark() + "')");
+		}
+		con.close();	
 	}
 }

@@ -13,6 +13,7 @@ import controller.SoapHandler;
 import object.Employee;
 import object.Material;
 import object.Project;
+import object.Relation;
 import object.Search;
 
 public class ImportDataServlet extends HttpServlet {
@@ -93,19 +94,19 @@ public class ImportDataServlet extends HttpServlet {
 			options = new String[][] { { "ArrayOfString", "string", "dimtype", "DEB" } };
 			searchObject = new Search("DIM", "*", 0, 1, 100, options);
 			responseArray = SoapHandler.createSOAPSearch(session, searchObject);
-			// Split data from ArrayList
-//			for (int i = 0; i < responseArray.size(); i++) {
-//				String[] parts = responseArray.get(i).split(",");
-//				// firstName and Lastname are identical
-//				Employee e = new Employee(parts[1], parts[1], parts[0]);
-//				ArrayList<Employee> emp = new ArrayList<Employee>();
-//				emp.add(e);
-//				try {
-//					ObjectDAO.saveEmployees(emp);
-//				} catch (SQLException e1) {
-//					e1.printStackTrace();
-//				}
-//			}
+			ArrayList<Relation> relations = new ArrayList<Relation>();
+			for (int i = 0; i < responseArray.size(); i++) {
+				String[] parts = responseArray.get(i).split(",");
+				Relation r = (Relation) SoapHandler.createSOAPXML(session,
+						"<type>dimensions</type><office>nla005594</office><dimtype>DEB</dimtype><code>" + parts[0] + "</code>", "relation");
+				relations.add(r);
+			}
+			try {
+				ObjectDAO.saveRelations(relations);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case "getHourTypes":
 			// Create search object
