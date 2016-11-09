@@ -2,6 +2,8 @@ package controller;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -93,8 +95,11 @@ public class SoapHandler {
 			setHeader(envelope, session);
 
 			// SOAP Body
-			setReadBody(envelope, data);
-
+			if (type.equals("office")) {
+				setListBody(envelope, data);
+			} else {
+				setReadBody(envelope, data);
+			}
 			soapMessage.saveChanges();
 
 			soapResponse = soapConnection.call(soapMessage, url);
@@ -105,21 +110,25 @@ public class SoapHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if(type.equals("project")){
-			obj = getProjectXML(xmlString);
-		}
-		if(type.equals("material")){
-			obj = getMaterialXML(xmlString);
-		}
-		if(type.equals("relation")){
-			obj = getRelationXML(xmlString);
+		if (soapResponse != null) {
+			if (type.equals("project")) {
+				obj = getProjectXML(xmlString);
+			}
+			if (type.equals("material")) {
+				obj = getMaterialXML(xmlString);
+			}
+			if (type.equals("relation")) {
+				obj = getRelationXML(xmlString);
+			}
+			if (type.equals("office")) {
+				obj = getOffices(xmlString);
+			}
 		}
 		return obj;
 	}
 
-
 	// See Finder methode from Twinfield
-	public static ArrayList<String> createSOAPSearch(String session, Search object) {
+	public static ArrayList<String> createSOAPFinder(String session, Search object) {
 		// Create SOAP Connection
 		SOAPMessage soapResponse = null;
 		SOAPConnection soapConnection = null;
@@ -190,6 +199,14 @@ public class SoapHandler {
 		soapBodyElem1.addTextNode("<![CDATA[<read>" + data + "</read>]]>");
 	}
 
+	// Set a body with parameter list
+	private static void setListBody(SOAPEnvelope envelope, String data) throws SOAPException {
+		SOAPBody soapBody = envelope.getBody();
+		SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString", "", "http://www.twinfield.com/");
+		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
+		soapBodyElem1.addTextNode("<![CDATA[<list>" + data + "</list>]]>");
+	}
+
 	// Global header
 	private static void setHeader(SOAPEnvelope envelope, String session) throws SOAPException {
 		envelope.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -210,41 +227,43 @@ public class SoapHandler {
 		try {
 			builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
-			//<dimension>
+			// <dimension>
 			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
-				//<code>
-				String code = allData.item(2).getTextContent();
-				//<uid>
-				String code_ext = allData.item(3).getTextContent();
-				//<name>
-				String name = allData.item(4).getTextContent();
-				//<dimension status>
-				String status = doc.getChildNodes().item(0).getAttributes().getNamedItem("status").getNodeValue();
-				//<projects>
-				NodeList projects = doc.getElementsByTagName("projects").item(0).getChildNodes();
-					//<invoicedescription>
-					String description = projects.item(0).getTextContent();
-					//<validfrom>
-					String dateStart = projects.item(1).getTextContent();
-					//<validfrom>
-					String dateEnd = projects.item(2).getTextContent();
-					//<customer>
-					String debtorNumber = projects.item(4).getTextContent();
-					//active
-					int active = 0;
-					if(status.equals("active")){
-						active = 1;
-					}
-			
-			System.out.println("code " + code+" name " + name+" code_ext " + code_ext+" status " + status+" description " + description+" debtor " + debtorNumber+" date_start " + dateStart+" date_end " + dateEnd+" active " + active);
-			p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateStart, description, 0, active);		
+			// <code>
+			String code = allData.item(2).getTextContent();
+			// <uid>
+			String code_ext = allData.item(3).getTextContent();
+			// <name>
+			String name = allData.item(4).getTextContent();
+			// <dimension status>
+			String status = doc.getChildNodes().item(0).getAttributes().getNamedItem("status").getNodeValue();
+			// <projects>
+			NodeList projects = doc.getElementsByTagName("projects").item(0).getChildNodes();
+			// <invoicedescription>
+			String description = projects.item(0).getTextContent();
+			// <validfrom>
+			String dateStart = projects.item(1).getTextContent();
+			// <validfrom>
+			String dateEnd = projects.item(2).getTextContent();
+			// <customer>
+			String debtorNumber = projects.item(4).getTextContent();
+			// active
+			int active = 0;
+			if (status.equals("active")) {
+				active = 1;
+			}
+
+			System.out.println("code " + code + " name " + name + " code_ext " + code_ext + " status " + status
+					+ " description " + description + " debtor " + debtorNumber + " date_start " + dateStart
+					+ " date_end " + dateEnd + " active " + active);
+			p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateStart, description, 0, active);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return p;
 	}
-	
+
 	// Converts String to Material Object
 	private static Object getMaterialXML(String soapResponse) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -253,34 +272,59 @@ public class SoapHandler {
 		try {
 			builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
-			//<article>
+			// <article>
 			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
-				//<header>
-				NodeList headerData = allData.item(0).getChildNodes();
-					//<code>
-					String code = headerData.item(1).getTextContent();
-				//<lines>
-				NodeList lines = allData.item(1).getChildNodes();
-				String subcode = null, unit = null, description = null;
-				double price = 0d;
-				for(int i = 0; i < lines.getLength(); i++){
-					//<line>
-					NodeList line = lines.item(i).getChildNodes();
-					price = Double.parseDouble(line.item(0).getTextContent());
-					unit = line.item(2).getTextContent();
-					description = line.item(3).getTextContent();
-					subcode = line.item(5).getTextContent();
-					//do something with the subMaterials
-				}					
-			System.out.println("code " + code+ " subcode " + subcode+" name " + description+" unit " + unit+" price " + price);
-			m = new Material(code, subcode, unit, description, price);		
+			// <header>
+			NodeList headerData = allData.item(0).getChildNodes();
+			// <code>
+			String code = headerData.item(1).getTextContent();
+			// <lines>
+			NodeList lines = allData.item(1).getChildNodes();
+			String subcode = null, unit = null, description = null;
+			double price = 0d;
+			for (int i = 0; i < lines.getLength(); i++) {
+				// <line>
+				NodeList line = lines.item(i).getChildNodes();
+				price = Double.parseDouble(line.item(0).getTextContent());
+				unit = line.item(2).getTextContent();
+				description = line.item(3).getTextContent();
+				subcode = line.item(5).getTextContent();
+				// do something with the subMaterials
+			}
+			System.out.println("code " + code + " subcode " + subcode + " name " + description + " unit " + unit
+					+ " price " + price);
+			m = new Material(code, subcode, unit, description, price);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return m;
 	}
-	
+
+	public static ArrayList<Map<String, String>> getOffices(String soapResponse) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder;
+		ArrayList<Map<String, String>> offices = new ArrayList<Map<String, String>>();
+		try {
+			builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
+			// <offices>
+			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
+			for (int i = 0; i < allData.getLength(); i++) {
+				String officeCode = allData.item(i).getTextContent();
+				String officeName = allData.item(i).getAttributes().getNamedItem("name").getNodeValue();
+				Map<String, String> office = new HashMap<String, String>();
+				office.put("code", officeCode);
+				office.put("name", officeName);
+				offices.add(office);
+				System.out.println("office " + i + " = " + officeCode);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return offices;
+	}
+
 	// Converts String to Relation Object
 	private static Object getRelationXML(String soapResponse) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -289,34 +333,36 @@ public class SoapHandler {
 		try {
 			builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(new InputSource(new StringReader(soapResponse)));
-			//<dimension>
+			// <dimension>
 			NodeList allData = doc.getChildNodes().item(0).getChildNodes();
-				//<code>
-				String debtorNumber = allData.item(2).getTextContent();
-				//<uid>
-//				String uid = allData.item(3).getTextContent();
-				//<name>
-				String name = allData.item(4).getTextContent();
-				//<financials>
-				NodeList financials = doc.getElementsByTagName("financials").item(0).getChildNodes();
-					//<ebillmail>
-					String emailWorkorder = financials.item(9).getTextContent();
-				//<addresses>
-				NodeList addresses = doc.getElementsByTagName("addresses").item(0).getChildNodes();
-				String phoneNumber = null, email = null, street = null, houseNumber = null, postalCode = null, city = null, remark = null;
-				for(int i = 0; i < addresses.getLength(); i++){
-					NodeList address = addresses.item(i).getChildNodes();
-					phoneNumber = address.item(4).getTextContent();
-					email = address.item(6).getTextContent();
-					String streetNumber[] = address.item(9).getTextContent().split("\\s+");
-					street = streetNumber[0];
-					houseNumber = streetNumber[1];
-					postalCode = address.item(3).getTextContent();
-					city = address.item(2).getTextContent();
-					remark = address.item(8).getTextContent();
-					//do something with the different addresses
-				}
-				r = new Relation(name, debtorNumber, null, phoneNumber, email, emailWorkorder, street, houseNumber, postalCode, city, remark);		
+			// <code>
+			String debtorNumber = allData.item(2).getTextContent();
+			// <uid>
+			// String uid = allData.item(3).getTextContent();
+			// <name>
+			String name = allData.item(4).getTextContent();
+			// <financials>
+			NodeList financials = doc.getElementsByTagName("financials").item(0).getChildNodes();
+			// <ebillmail>
+			String emailWorkorder = financials.item(9).getTextContent();
+			// <addresses>
+			NodeList addresses = doc.getElementsByTagName("addresses").item(0).getChildNodes();
+			String phoneNumber = null, email = null, street = null, houseNumber = null, postalCode = null, city = null,
+					remark = null;
+			for (int i = 0; i < addresses.getLength(); i++) {
+				NodeList address = addresses.item(i).getChildNodes();
+				phoneNumber = address.item(4).getTextContent();
+				email = address.item(6).getTextContent();
+				String streetNumber[] = address.item(9).getTextContent().split("\\s+");
+				street = streetNumber[0];
+				houseNumber = streetNumber[1];
+				postalCode = address.item(3).getTextContent();
+				city = address.item(2).getTextContent();
+				remark = address.item(8).getTextContent();
+				// do something with the different addresses
+			}
+			r = new Relation(name, debtorNumber, null, phoneNumber, email, emailWorkorder, street, houseNumber,
+					postalCode, city, remark);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
