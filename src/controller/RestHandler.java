@@ -10,10 +10,11 @@ import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 
-import object.Employee;
-import object.Material;
-import object.Project;
-import object.Relation;
+import object.rest.Employee;
+import object.rest.HourType;
+import object.rest.Material;
+import object.rest.Project;
+import object.rest.Relation;
 
 public class RestHandler {
 	public static void addData(String token, Object array, String type) throws ServletException, IOException {
@@ -40,6 +41,9 @@ public class RestHandler {
 			break;
 		case "materials":
 			input = materialInput(array);
+			break;
+		case "hourtypes":
+			input = hourtypeInput(array);
 			break;
 		
 		}
@@ -169,6 +173,34 @@ public class RestHandler {
 				+ "\",\"description\":\"" + m.getDescription()
 				+ "\",\"price\":\"" + m.getPrice()
 				+ "\",\"unit\":\"" +  m.getUnit() + "\"},";
+			}
+		}
+		return input += "]";
+	}
+	
+	public static String hourtypeInput(Object obj){
+		@SuppressWarnings("unchecked")
+		ArrayList<HourType> array = (ArrayList<HourType>) obj;
+		String input = "[";
+		int i = 1;
+		for (HourType h : array) {
+			if (i == array.size()) {	
+				input += "{\"code\":\"" + h.getCode()
+				+ "\",\"name\":\"" + h.getName()
+				+ "\",\"cost_booking\":\"" + h.getCostBooking()
+				+ "\",\"sale_booking\":\"" + h.getSaleBooking()
+				+ "\",\"cost_price\":\"" + h.getCostPrice()
+				+ "\",\"sale_price\":\"" + h.getSalePrice()
+				+ "\",\"active\":\"" +  h.getActive() + "\"}";
+			}else{
+				i++;
+				input += "{\"code\":\"" + h.getCode()
+				+ "\",\"name\":\"" + h.getName()
+				+ "\",\"cost_booking\":\"" + h.getCostBooking()
+				+ "\",\"sale_booking\":\"" + h.getSaleBooking()
+				+ "\",\"cost_price\":\"" + h.getCostPrice()
+				+ "\",\"sale_price\":\"" + h.getSalePrice()
+				+ "\",\"active\":\"" +  h.getActive() + "\"},";
 			}
 		}
 		return input += "]";

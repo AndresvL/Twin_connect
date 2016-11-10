@@ -6,10 +6,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import DBUtil.DBConnection;
-import object.Employee;
-import object.Material;
-import object.Project;
-import object.Relation;
+import object.rest.Employee;
+import object.rest.HourType;
+import object.rest.Material;
+import object.rest.Project;
+import object.rest.Relation;
 
 public class ObjectDAO {
 	private static Statement statement;
@@ -90,6 +91,25 @@ public class ObjectDAO {
 						+ r.getPostalCode() + "','" 
 						+ r.getCity() + "','" 
 						+ r.getRemark() + "')");
+			}
+			con.close();	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	public static void saveHourTypes(ArrayList<HourType> hourtypes) {
+		try{
+			Connection con = DBConnection.createDatabaseConnection();
+			statement = con.createStatement();
+			for (HourType h : hourtypes) {
+				statement.execute("INSERT INTO hourtypes (code, name, cost_booking, sale_booking, sale_price, cost_price, active)" + "VALUES ('" 
+						+ h.getCode() + "','"
+						+ h.getName() + "','"
+						+ h.getCostBooking() + "','"
+						+ h.getSaleBooking() + "','"
+						+ h.getCostPrice() + "','"
+						+ h.getSalePrice() + "','"
+						+ h.getActive() + "')");
 			}
 			con.close();	
 		} catch (SQLException e) {

@@ -1,4 +1,4 @@
-package object;
+package object.rest;
 
 public class Relation {
 	private String name, debtorNumber, contact, phoneNumber, email, emailWorkorder, street, houseNumber, postalCode, city, remark;

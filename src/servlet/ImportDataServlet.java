@@ -10,11 +10,12 @@ import javax.servlet.http.*;
 import DAO.ObjectDAO;
 import controller.RestHandler;
 import controller.SoapHandler;
-import object.Employee;
-import object.Material;
-import object.Project;
-import object.Relation;
 import object.Search;
+import object.rest.Employee;
+import object.rest.HourType;
+import object.rest.Material;
+import object.rest.Project;
+import object.rest.Relation;
 
 public class ImportDataServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -128,12 +129,26 @@ public class ImportDataServlet extends HttpServlet {
 		case "getHourTypes":
 			// Create search object
 			// Parameters: type, pattern, field, firstRow, maxRows, options
-			options = new String[][] { { "ArrayOfString", "string", "office", office } };
-			searchObject = new Search("USR", "*", 0, 1, 100, options);
+			options = new String[][] { { "ArrayOfString", "string", "office", office }, { "ArrayOfString", "string", "dimtype", "ACT" } };
+			searchObject = new Search("DIM", "*", 0, 1, 100, options);
 			responseArray = SoapHandler.createSOAPFinder(session, searchObject);
-			// if(hourTypes != null){
-			//
-			// }
+			ArrayList<HourType> hourtypes = new ArrayList<HourType>();
+			for (int i = 0; i < responseArray.size(); i++) {
+				String[] parts = responseArray.get(i).split(",");
+				String string = "<type>dimensions</type><office>" + office + "</office><dimtype>ACT</dimtype><code>"
+						+ parts[0] + "</code>";
+				Object obj = SoapHandler.createSOAPXML(session, string, "hourtype");
+				if (obj != null) {
+					HourType h = (HourType) obj;
+					hourtypes.add(h);
+				}
+			}
+			if (!hourtypes.isEmpty()) {
+				ObjectDAO.saveHourTypes(hourtypes);
+				RestHandler.addData(token, hourtypes, "hourtypes");
+			}else {
+				errorMessage = "Office " + office + " heeft geen hourtypes";
+			}
 			break;
 		}
 		String temp = "ArrayList:\n";

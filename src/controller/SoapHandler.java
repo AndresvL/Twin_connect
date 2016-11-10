@@ -15,11 +15,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import object.Material;
-import object.Project;
-import object.Relation;
 import object.Search;
 import object.Token;
+import object.rest.HourType;
+import object.rest.Material;
+import object.rest.Project;
+import object.rest.Relation;
 
 public class SoapHandler {
 	private static String cluster;
@@ -130,6 +131,10 @@ public class SoapHandler {
 				break;
 			case "relation":
 				obj = getRelationXML(xmlString, doc);
+				break;
+			case "hourtype":
+				System.out.println(xmlString);
+				obj = getHourTypeXML(xmlString, doc);
 				break;
 			case "office":
 				obj = getOffices(xmlString, doc);
@@ -322,6 +327,7 @@ public class SoapHandler {
 			}
 			String streetNumber[] = address.item(9).getTextContent().split("\\s+");
 			street = streetNumber[0];
+			street.replace("'s", "s");
 			if(street.equals("")){
 				street = "leeg";
 			}
@@ -342,7 +348,22 @@ public class SoapHandler {
 
 		return r;
 	}
-
+	
+	// Converts String to Hourtype Object
+	private static Object getHourTypeXML(String soapResponse, Document doc) {
+		HourType h = null;
+		// <dimension>
+		NodeList allData = doc.getChildNodes().item(0).getChildNodes();
+		// <code>
+		String code = allData.item(2).getTextContent();
+		// <uid>
+		// String uid = allData.item(3).getTextContent();
+		// <name>
+		String name = allData.item(4).getTextContent();
+//		h = new HourType(code, name, costBooking, saleBooking, costPrice, salePrice, active);
+		h = new HourType(code, name, 0, 0, 0.0, 0.0, 1);
+		return h;
+	}
 	public static ArrayList<String> setArrayList(SOAPMessage response) {
 		ArrayList<String> allItems = new ArrayList<String>();
 		try {

@@ -1,4 +1,4 @@
-package object;
+package object.rest;
 
 public class Employee {
 	private String firstName;
