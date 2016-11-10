@@ -317,11 +317,23 @@ public class SoapHandler {
 			NodeList address = addresses.item(i).getChildNodes();
 			phoneNumber = address.item(4).getTextContent();
 			email = address.item(6).getTextContent();
+			if(email.equals("")){
+				email = "leeg";
+			}
 			String streetNumber[] = address.item(9).getTextContent().split("\\s+");
 			street = streetNumber[0];
-			houseNumber = streetNumber[1];
+			if(street.equals("")){
+				street = "leeg";
+			}
+			houseNumber = streetNumber[streetNumber.length-1];
 			postalCode = address.item(3).getTextContent();
+			if(postalCode.equals("")){
+				postalCode = "leeg";
+			}
 			city = address.item(2).getTextContent();
+			if(city.equals("")){
+				city = "leeg";
+			}
 			remark = address.item(8).getTextContent();
 			// do something with the different addresses
 		}

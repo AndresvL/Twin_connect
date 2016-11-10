@@ -71,6 +71,7 @@ public class ImportDataServlet extends HttpServlet {
 			}
 			if (!materials.isEmpty()) {
 				ObjectDAO.saveMaterials(materials);
+				RestHandler.addData(token, materials, "materials");
 			} else {
 				errorMessage = "Office " + office + " heeft geen materialen";
 			}
@@ -119,6 +120,7 @@ public class ImportDataServlet extends HttpServlet {
 			}
 			if (!relations.isEmpty()) {
 				ObjectDAO.saveRelations(relations);
+				RestHandler.addData(token, relations, "relations");
 			}else {
 				errorMessage = "Office " + office + " heeft geen relations";
 			}
