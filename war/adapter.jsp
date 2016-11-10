@@ -14,6 +14,7 @@
 	</form>
 	<div><input type="text" name="session"
 			value="${session}" disabled></div>
+			<div>${error}</div>
 
 	<textarea rows="30" cols="70" style="border: none;"><c:out
 			value="${soap}" /></textarea>

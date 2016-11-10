@@ -14,36 +14,48 @@ import object.Relation;
 public class ObjectDAO {
 	private static Statement statement;
 	
-	public static void saveEmployees(ArrayList<Employee> emp) throws SQLException {
-		Connection con = DBConnection.createDatabaseConnection();
-		statement = con.createStatement();
-		for (Employee e : emp) {
-			System.out.println("name " + e.getLastName());
-			System.out.println("code " + e.getCode());
-			statement.execute("INSERT INTO employees (code, firstname, lastname)" + "VALUES ('" 
-					+ e.getCode() + "','"
-					+ e.getFirstName() + "','" 
-					+ e.getLastName() + "')");
+	public static void saveEmployees(ArrayList<Employee> emp) {
+		try{
+			Connection con = DBConnection.createDatabaseConnection();
+			statement = con.createStatement();
+			for (Employee e : emp) {
+				System.out.println("name " + e.getLastName());
+				System.out.println("code " + e.getCode());
+				statement.execute("INSERT INTO employees (code, firstname, lastname)" + "VALUES ('" 
+						+ e.getCode() + "','"
+						+ e.getFirstName() + "','" 
+						+ e.getLastName() + "')");
+			}
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		con.close();
 	}
 	
-	public static void saveMaterials(ArrayList<Material> mat) throws SQLException {
-		Connection con = DBConnection.createDatabaseConnection();
-		statement = con.createStatement();
-		for (Material m : mat) {
-			System.out.println("code " + m.getCode());
-			statement.execute("INSERT INTO materials (code, description, price, unit)" + "VALUES ('" 
-					+ m.getCode() + "','"
-					+ m.getDescription() + "','" 
-					+ m.getPrice() + "','" 
-					+ m.getUnit() + "')");
+	public static void saveMaterials(ArrayList<Material> mat) {
+		try{
+			Connection con = DBConnection.createDatabaseConnection();
+			statement = con.createStatement();
+			for (Material m : mat) {
+				System.out.println("code " + m.getCode());
+				statement.execute("INSERT INTO materials (code, description, price, unit)" + "VALUES ('" 
+						+ m.getCode() + "','"
+						+ m.getDescription() + "','" 
+						+ m.getPrice() + "','" 
+						+ m.getUnit() + "')");
+			}
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		con.close();
 	}
 
-	public static void saveProjects(ArrayList<Project> projects) throws SQLException {
-		Connection con = DBConnection.createDatabaseConnection();
+	public static void saveProjects(ArrayList<Project> projects) {
+		Connection con;
+		try {
+			con = DBConnection.createDatabaseConnection();
+		
 		statement = con.createStatement();
 		for (Project p : projects) {
 			System.out.println("name " + p.getName());
@@ -60,27 +72,34 @@ public class ObjectDAO {
 					+ p.getDate_end() + "','" 
 					+ p.getActive() + "')");
 		}
-		con.close();		
+		con.close();	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public static void saveRelations(ArrayList<Relation> relations) throws SQLException {
-		Connection con = DBConnection.createDatabaseConnection();
-		statement = con.createStatement();
-		for (Relation r : relations) {
-			System.out.println("name " + r.getName());
-			statement.execute("INSERT INTO relations (name, debtor_number, contact, phone_number, email, email_workorder, street, house_number, postal_code, city, remark)" + "VALUES ('" 
-					+ r.getName() + "','"
-					+ r.getDebtorNumber() + "','"
-					+ r.getContact() + "','"
-					+ r.getPhoneNumber() + "','"
-					+ r.getEmail() + "','"
-					+ r.getEmailWorkorder() + "','"
-					+ r.getStreet() + "','"
-					+ r.getHouseNumber() + "','" 
-					+ r.getPostalCode() + "','" 
-					+ r.getCity() + "','" 
-					+ r.getRemark() + "')");
+	public static void saveRelations(ArrayList<Relation> relations) {
+		try{
+			Connection con = DBConnection.createDatabaseConnection();
+			statement = con.createStatement();
+			for (Relation r : relations) {
+				System.out.println("name " + r.getName());
+				statement.execute("INSERT INTO relations (name, debtor_number, contact, phone_number, email, email_workorder, street, house_number, postal_code, city, remark)" + "VALUES ('" 
+						+ r.getName() + "','"
+						+ r.getDebtorNumber() + "','"
+						+ r.getContact() + "','"
+						+ r.getPhoneNumber() + "','"
+						+ r.getEmail() + "','"
+						+ r.getEmailWorkorder() + "','"
+						+ r.getStreet() + "','"
+						+ r.getHouseNumber() + "','" 
+						+ r.getPostalCode() + "','" 
+						+ r.getCity() + "','" 
+						+ r.getRemark() + "')");
+			}
+			con.close();	
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		con.close();	
 	}
 }
