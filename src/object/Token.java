@@ -1,6 +1,7 @@
 package object;
 
 public class Token {
+	protected String softwareToken;
 	protected String consumerToken;
 	protected String consumerSecret;
 	protected String tempToken;
@@ -9,11 +10,12 @@ public class Token {
 	protected String accessSecret;
 	protected String verifyToken;
 	
-	public Token(String cT, String cS, String aT, String aS){
+	public Token(String cT, String cS, String aT, String aS, String sT){
 		this.consumerToken = cT;
 		this.consumerSecret = cS;
 		this.accessToken = aT;
 		this.accessSecret = aS;
+		this.softwareToken = sT;
 	}
 	public Token() {
 	}
@@ -64,5 +66,11 @@ public class Token {
 	}
 	public String getVerifyToken(){
 		return verifyToken;
+	}
+	public void setSoftwareToken(String key){
+		this.softwareToken = key;
+	}
+	public String getSoftwareToken(){
+		return softwareToken;
 	}
 }

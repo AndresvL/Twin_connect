@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 import DAO.ObjectDAO;
+import controller.RestHandler;
 import controller.SoapHandler;
 import object.Employee;
 import object.Material;
@@ -21,6 +22,7 @@ public class ImportDataServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String button = req.getParameter("category");
 		String office = req.getParameter("offices");
+		String token = (String) req.getSession().getAttribute("softwareToken");
 		String session = (String) req.getSession().getAttribute("session");
 		ArrayList<String> responseArray = null;
 		String[][] options = null;
@@ -44,6 +46,8 @@ public class ImportDataServlet extends HttpServlet {
 			}
 			if (!emp.isEmpty()) {
 				ObjectDAO.saveEmployees(emp);
+				//Post data to WorkorderApp
+				RestHandler.addData(token, emp, "employees");
 			} else {
 				errorMessage = "No Employees found";
 			}
@@ -91,6 +95,7 @@ public class ImportDataServlet extends HttpServlet {
 			}
 			if (!projects.isEmpty()) {
 				ObjectDAO.saveProjects(projects);
+				RestHandler.addData(token, projects, "projects");
 			}else {
 				errorMessage = "Office " + office + " heeft geen projecten";
 			}
@@ -139,4 +144,5 @@ public class ImportDataServlet extends HttpServlet {
 		req.getSession().setAttribute("soap", temp);
 		rd.forward(req, resp);
 	}
+	
 }

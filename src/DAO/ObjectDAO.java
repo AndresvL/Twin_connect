@@ -19,8 +19,6 @@ public class ObjectDAO {
 			Connection con = DBConnection.createDatabaseConnection();
 			statement = con.createStatement();
 			for (Employee e : emp) {
-				System.out.println("name " + e.getLastName());
-				System.out.println("code " + e.getCode());
 				statement.execute("INSERT INTO employees (code, firstname, lastname)" + "VALUES ('" 
 						+ e.getCode() + "','"
 						+ e.getFirstName() + "','" 
@@ -38,7 +36,6 @@ public class ObjectDAO {
 			Connection con = DBConnection.createDatabaseConnection();
 			statement = con.createStatement();
 			for (Material m : mat) {
-				System.out.println("code " + m.getCode());
 				statement.execute("INSERT INTO materials (code, description, price, unit)" + "VALUES ('" 
 						+ m.getCode() + "','"
 						+ m.getDescription() + "','" 
@@ -58,8 +55,6 @@ public class ObjectDAO {
 		
 		statement = con.createStatement();
 		for (Project p : projects) {
-			System.out.println("name " + p.getName());
-			System.out.println("code " + p.getCode());
 			statement.execute("INSERT INTO projects (code, code_ext, debtor_number, status, name, description, progress, date_start, date_end, active)" + "VALUES ('" 
 					+ p.getCode() + "','"
 					+ p.getCode_ext() + "','"
@@ -83,7 +78,6 @@ public class ObjectDAO {
 			Connection con = DBConnection.createDatabaseConnection();
 			statement = con.createStatement();
 			for (Relation r : relations) {
-				System.out.println("name " + r.getName());
 				statement.execute("INSERT INTO relations (name, debtor_number, contact, phone_number, email, email_workorder, street, house_number, postal_code, city, remark)" + "VALUES ('" 
 						+ r.getName() + "','"
 						+ r.getDebtorNumber() + "','"

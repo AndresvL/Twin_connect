@@ -10,8 +10,11 @@
 </head>
 <body>
 	<form action="OAuth.do">
+	<input type="text" name="token"
+			value="e0aa544680b8cbee18a15b6650600db2" >
 		<input type="submit" value="Get Access" />
 	</form>
+	
 	<div><input type="text" name="session"
 			value="${session}" disabled></div>
 			<div>${error}</div>

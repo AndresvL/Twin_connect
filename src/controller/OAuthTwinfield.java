@@ -19,14 +19,14 @@ import object.Token;
 import java.util.Map.Entry;
 
 // OAuth 1.0
-public class OAuth {
+public class OAuthTwinfield {
 	// Does this still work if there're multiple users using this methode?
 	@SuppressWarnings("unused")
 	private static String callbackConfirmed = null;
 	private static Token token = null;
 	private TokenDAO tokenDao = new TokenDAO();
 
-	public Token getTempToken(String consumerKey, String consumerSecret)
+	public Token getTempToken(String consumerKey, String consumerSecret, String softwareToken)
 			throws ClientProtocolException, IOException, SQLException {
 		//Check if user has the accessToken stored in the database
 		Token accessToken = tokenDao.getAccessToken();
@@ -34,6 +34,7 @@ public class OAuth {
 			token = new Token();
 			token.setConsumerToken(consumerKey);
 			token.setConsumerSecret(consumerSecret);
+			token.setSoftwareToken(softwareToken);
 			String uri = "https://login.twinfield.com/oauth/initiate.aspx";
 			// Change to WorkOrder host
 			// action is verify.do

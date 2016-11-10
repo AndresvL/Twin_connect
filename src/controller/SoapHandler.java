@@ -250,6 +250,9 @@ public class SoapHandler {
 		String description = projects.item(0).getTextContent();
 		// <validfrom>
 		String dateStart = projects.item(1).getTextContent();
+		if(dateStart.equals("")){
+			dateStart = "2013-10-01";
+		}
 		// <validfrom>
 		String dateEnd = projects.item(2).getTextContent();
 		// <customer>
@@ -259,11 +262,7 @@ public class SoapHandler {
 		if (status.equals("active")) {
 			active = 1;
 		}
-
-		System.out.println("code " + code + " name " + name + " code_ext " + code_ext + " status " + status
-				+ " description " + description + " debtor " + debtorNumber + " date_start " + dateStart + " date_end "
-				+ dateEnd + " active " + active);
-		p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateStart, description, 0, active);
+		p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description, 0, active);
 
 		return p;
 	}
@@ -290,8 +289,6 @@ public class SoapHandler {
 			subcode = line.item(5).getTextContent();
 			// do something with the subMaterials
 		}
-		System.out.println(
-				"code " + code + " subcode " + subcode + " name " + description + " unit " + unit + " price " + price);
 		m = new Material(code, subcode, unit, description, price);
 
 		return m;
