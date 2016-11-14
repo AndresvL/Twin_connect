@@ -7,6 +7,7 @@
 	<welcome-file-list>
 		<welcome-file>adapter.jsp</welcome-file>
 	</welcome-file-list>
+
 	<servlet>
 		<servlet-name>oauth servlet</servlet-name>
 		<servlet-class>servlet.OAuthServlet</servlet-class>
@@ -23,7 +24,7 @@
 		<servlet-name>oauth_verify servlet</servlet-name>
 		<url-pattern>/verify.do</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet>
 		<servlet-name>import data servlet</servlet-name>
 		<servlet-class>servlet.ImportDataServlet</servlet-class>

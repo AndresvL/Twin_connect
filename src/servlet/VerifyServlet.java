@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -22,7 +23,11 @@ public class VerifyServlet extends HttpServlet {
 		Token token = oauth.getAccessToken(temporaryToken, temporaryVerifier);
 		String sessionID = SoapHandler.getSession(token);
 		RequestDispatcher rd = null;
+		@SuppressWarnings("unchecked")
+		ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID,
+				"<type>offices</type>", "office");
 		rd = req.getRequestDispatcher("adapter.jsp");
+		req.getSession().setAttribute("offices", offices);
 		req.getSession().setAttribute("softwareToken", token.getSoftwareToken());
 		req.getSession().setAttribute("session", sessionID);
 		rd.forward(req, resp);

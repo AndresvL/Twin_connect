@@ -133,7 +133,6 @@ public class SoapHandler {
 				obj = getRelationXML(xmlString, doc);
 				break;
 			case "hourtype":
-				System.out.println(xmlString);
 				obj = getHourTypeXML(xmlString, doc);
 				break;
 			case "office":

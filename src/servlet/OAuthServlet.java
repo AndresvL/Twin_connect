@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import controller.OAuthTwinfield;
+import controller.RestHandler;
 import controller.SoapHandler;
 import object.Token;
 
@@ -28,19 +29,30 @@ public class OAuthServlet extends HttpServlet {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		if (checkToken.getAccessToken() == null) {
-			resp.sendRedirect("https://login.twinfield.com/oauth/login.aspx?oauth_token=" + checkToken.getTempToken());
+		if (RestHandler.checkToken(softwareToken) == 200) {
+			req.getSession().setAttribute("error", null);
+			if (checkToken.getAccessToken() == null) {
+				resp.sendRedirect(
+						"https://login.twinfield.com/oauth/login.aspx?oauth_token=" + checkToken.getTempToken());
+			} else {
+				System.out.println("else");
+				String sessionID = SoapHandler.getSession(checkToken);
+				@SuppressWarnings("unchecked")
+				ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID,
+						"<type>offices</type>", "office");
+				RequestDispatcher rd = null;
+				rd = req.getRequestDispatcher("adapter.jsp");
+				req.getSession().setAttribute("session", sessionID);
+				req.getSession().setAttribute("softwareToken", softwareToken);
+				req.getSession().setAttribute("offices", offices);
+				rd.forward(req, resp);
+			}
 		}else{
-			String sessionID = SoapHandler.getSession(checkToken);
-			@SuppressWarnings("unchecked")
-			ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID, "<type>offices</type>", "office");
 			RequestDispatcher rd = null;
 			rd = req.getRequestDispatcher("adapter.jsp");
-			req.getSession().setAttribute("session", sessionID);
-			req.getSession().setAttribute("softwareToken", softwareToken);
-			req.getSession().setAttribute("offices", offices);
+			req.getSession().setAttribute("error", "softwareToken is ongeldig");
 			rd.forward(req, resp);
 		}
+		
 	}
 }
-	

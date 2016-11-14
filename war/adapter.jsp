@@ -28,6 +28,8 @@
 				<option value="${office.code}">${office.name}</option>
 			</c:forEach>
 		</select> 
+		<input type="submit" value="start" name="category" /> 
+		<input type="submit" value="stop" name="category" /> 
 		<input type="submit" value="getEmployees" name="category" /> 
 		<input type="submit" value="getMaterials" name="category" /> 
 		<input type="submit" value="getProjects" name="category" />
