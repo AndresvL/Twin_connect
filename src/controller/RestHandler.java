@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -15,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import object.rest.Address;
 import object.rest.Employee;
 import object.rest.HourType;
 import object.rest.Material;
@@ -67,7 +67,6 @@ public class RestHandler {
 		double materialPrice;
 		String link = "https://www.werkbonapp.nl/openapi/" + version + "/" + type + "/?token=" + token
 				+ "&software_token=" + softwareToken + "&status=" + stat + "&update_status=" + updateStatus;
-		System.out.println(link);
 		String output = null;
 		ArrayList<WorkOrder> allData = null;
 		try {
@@ -236,22 +235,25 @@ public class RestHandler {
 		String input = "[";
 		int i = 1;
 		for (Relation r : array) {
-			if (i == array.size()) {
-				i++;
-				input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
-						+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + r.getPhoneNumber()
-						+ "\",\"email\":\"" + r.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
-						+ "\",\"street\":\"" + r.getStreet() + "\",\"house_number\":\"" + r.getHouseNumber()
-						+ "\",\"postal_code\":\"" + r.getPostalCode() + "\",\"city\":\"" + r.getCity()
-						+ "\",\"remark\":\"" + r.getRemark() + "\"}";
-			} else {
-				i++;
-				input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
-						+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + r.getPhoneNumber()
-						+ "\",\"email\":\"" + r.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
-						+ "\",\"street\":\"" + r.getStreet() + "\",\"house_number\":\"" + r.getHouseNumber()
-						+ "\",\"postal_code\":\"" + r.getPostalCode() + "\",\"city\":\"" + r.getCity()
-						+ "\",\"remark\":\"" + r.getRemark() + "\"},";
+			//posts the same relation with different addresses
+			for(Address a : r.getAddressess()){
+				if (i == array.size()) {
+					i++;
+					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
+							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
+							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
+							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
+							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
+							+ "\",\"remark\":\"" + a.getRemark() + "\"}";
+				} else {
+					i++;
+					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
+							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
+							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
+							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
+							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
+							+ "\",\"remark\":\"" + a.getRemark() + "\"},";
+				}
 			}
 		}
 		return input += "]";

@@ -17,6 +17,7 @@ import org.xml.sax.InputSource;
 
 import object.Search;
 import object.Token;
+import object.rest.Address;
 import object.rest.HourType;
 import object.rest.Material;
 import object.rest.Project;
@@ -107,7 +108,7 @@ public class SoapHandler {
 					.getTextContent();
 			soapConnection.close();
 
-			// Check if SOAP result is 0 or 1
+			
 			builder = factory.newDocumentBuilder();
 			doc = builder.parse(new InputSource(new StringReader(xmlString)));
 
@@ -116,7 +117,7 @@ public class SoapHandler {
 		}
 		int result = Integer
 				.parseInt(doc.getChildNodes().item(0).getAttributes().getNamedItem("result").getNodeValue());
-		System.out.println("result " + result);
+		// Check if SOAP result is 0 or 1
 		if (result != 0) {
 			// System.out.println("soapResponse: " + xmlString);
 			switch (type) {
@@ -325,14 +326,29 @@ public class SoapHandler {
 		NodeList addresses = doc.getElementsByTagName("addresses").item(0).getChildNodes();
 		String phoneNumber = null, email = null, street = null, houseNumber = null, postalCode = null, city = null,
 				remark = null;
+		ArrayList<Address> allAddresses = new ArrayList<Address>();
 		for (int i = 0; i < addresses.getLength(); i++) {
+			street ="";			
 			NodeList address = addresses.item(i).getChildNodes();
+			int addressId = Integer.parseInt(addresses.item(i).getAttributes().getNamedItem("id").getNodeValue());
+			String type = addresses.item(i).getAttributes().getNamedItem("type").getNodeValue();
 			phoneNumber = address.item(4).getTextContent();
 			email = address.item(6).getTextContent();
 			if (email.equals("")) {
 				email = "leeg";
 			}
 			String streetNumber[] = address.item(9).getTextContent().split("\\s+");
+			for(int j = 0; j<streetNumber.length; j++){
+				if(j==streetNumber.length-1){
+					houseNumber = streetNumber[j];
+				}else if(j==streetNumber.length-2){
+					street += streetNumber[j];
+				}else{
+					street += streetNumber[j] + " ";
+				}
+				
+			}
+		
 			street = streetNumber[0];
 			street.replace("'s", "s");
 			if (street.equals("")) {
@@ -349,10 +365,10 @@ public class SoapHandler {
 			}
 			remark = address.item(8).getTextContent();
 			// do something with the different addresses
-		}
-		r = new Relation(name, debtorNumber, null, phoneNumber, email, emailWorkorder, street, houseNumber, postalCode,
-				city, remark);
-
+			Address a = new Address(name, phoneNumber, email, street, houseNumber, postalCode, city, remark, type, addressId);
+			allAddresses.add(a);
+		}		
+		r = new Relation(name, debtorNumber, null, emailWorkorder, allAddresses);
 		return r;
 	}
 

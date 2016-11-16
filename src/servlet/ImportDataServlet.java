@@ -165,11 +165,9 @@ public class ImportDataServlet extends HttpServlet {
 				break;
 			case "getWorkorder":
 				ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
-				System.out.println("Array");
 				for(WorkOrder w : allData){
-					System.out.println("workorder "  +  w.getProjectNr());
 					String string = null;
-					if(!w.getProjectNr().equals("")){
+					if(w.getProjectNr().equals("")){
 						invoiceType = "FACTUUR";
 						string = "<salesinvoice>"
 							+ "<header>"
@@ -234,7 +232,7 @@ public class ImportDataServlet extends HttpServlet {
 						}
 						string += "</lines></salesinvoice>";
 					}
-					System.out.println(string);
+//					System.out.println(string);
 /*					<salesinvoice>
 						<header>
 							<office>nla005594</office>
