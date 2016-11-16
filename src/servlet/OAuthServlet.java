@@ -39,7 +39,7 @@ public class OAuthServlet extends HttpServlet {
 				String sessionID = SoapHandler.getSession(checkToken);
 				@SuppressWarnings("unchecked")
 				ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID,
-						"<type>offices</type>", "office");
+						"<list><type>offices</type></list>", "office");
 				RequestDispatcher rd = null;
 				rd = req.getRequestDispatcher("adapter.jsp");
 				req.getSession().setAttribute("session", sessionID);

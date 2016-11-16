@@ -17,6 +17,7 @@ import object.rest.HourType;
 import object.rest.Material;
 import object.rest.Project;
 import object.rest.Relation;
+import object.rest.WorkOrder;
 
 public class ImportDataServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -24,8 +25,10 @@ public class ImportDataServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String button = req.getParameter("category");
 		String office = req.getParameter("offices");
+		String factuurType = req.getParameter("factuurType");
 		String token = (String) req.getSession().getAttribute("softwareToken");
 		String session = (String) req.getSession().getAttribute("session");
+		String invoiceType;
 		ArrayList<String> responseArray = null;
 		String[][] options = null;
 		Search searchObject;
@@ -64,7 +67,7 @@ public class ImportDataServlet extends HttpServlet {
 				ArrayList<Material> materials = new ArrayList<Material>();
 				for (int i = 0; i < responseArray.size(); i++) {
 					String[] parts = responseArray.get(i).split(",");
-					String string = "<type>article</type><office>" + office + "</office><code>" + parts[0] + "</code>";
+					String string = "<read><type>article</type><office>" + office + "</office><code>" + parts[0] + "</code></read>";
 					Object obj = SoapHandler.createSOAPXML(session, string, "material");
 					if (obj != null) {
 						Material m = (Material) obj;
@@ -90,8 +93,8 @@ public class ImportDataServlet extends HttpServlet {
 				for (int i = 0; i < responseArray.size(); i++) {
 					String[] parts = responseArray.get(i).split(",");
 					// XMLString
-					String string = "<type>dimensions</type><office>" + office + "</office><dimtype>PRJ</dimtype><code>"
-							+ parts[0] + "</code>";
+					String string = "<read><type>dimensions</type><office>" + office + "</office><dimtype>PRJ</dimtype><code>"
+							+ parts[0] + "</code></read>";
 					Object obj = SoapHandler.createSOAPXML(session, string, "project");
 					if (obj != null) {
 						Project p = (Project) obj;
@@ -114,8 +117,8 @@ public class ImportDataServlet extends HttpServlet {
 				ArrayList<Relation> relations = new ArrayList<Relation>();
 				for (int i = 0; i < responseArray.size(); i++) {
 					String[] parts = responseArray.get(i).split(",");
-					String string = "<type>dimensions</type><office>" + office + "</office><dimtype>DEB</dimtype><code>"
-							+ parts[0] + "</code>";
+					String string = "<read><type>dimensions</type><office>" + office + "</office><dimtype>DEB</dimtype><code>"
+							+ parts[0] + "</code></read>";
 					Object obj = SoapHandler.createSOAPXML(session, string, "relation");
 					if (obj != null) {
 						Relation r = (Relation) obj;
@@ -139,8 +142,8 @@ public class ImportDataServlet extends HttpServlet {
 				ArrayList<HourType> hourtypes = new ArrayList<HourType>();
 				for (int i = 0; i < responseArray.size(); i++) {
 					String[] parts = responseArray.get(i).split(",");
-					String string = "<type>dimensions</type><office>" + office + "</office><dimtype>ACT</dimtype><code>"
-							+ parts[0] + "</code>";
+					String string = "<read><type>dimensions</type><office>" + office + "</office><dimtype>ACT</dimtype><code>"
+							+ parts[0] + "</code></read>";
 					Object obj = SoapHandler.createSOAPXML(session, string, "hourtype");
 					if (obj != null) {
 						HourType h = (HourType) obj;
@@ -159,6 +162,104 @@ public class ImportDataServlet extends HttpServlet {
 				break;
 			case "stop":
 				setDelay(false);
+				break;
+			case "getWorkorder":
+				ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
+				System.out.println("Array");
+				for(WorkOrder w : allData){
+					System.out.println("workorder "  +  w.getProjectNr());
+					String string = null;
+					if(!w.getProjectNr().equals("")){
+						invoiceType = "FACTUUR";
+						string = "<salesinvoice>"
+							+ "<header>"
+							+ "<office>" + office + "</office>"
+							+ "<invoicetype>" + invoiceType + "</invoicetype>"
+							+ "<invoicedate>" + w.getCreationDate() + "</invoicedate>"
+							+ "<duedate>" + w.getWorkDate() + "</duedate>"
+							+ "<customer>" + w.getCustomerDebtorNr() + "</customer>"
+							+ "<status>" + w.getStatus() + "</status>"
+							+ "<paymentmethod>"+ w.getPaymentMethod() + "</paymentmethod>"
+							+ "<invoiceaddressnumber>1</invoiceaddressnumber>"
+							+ "<deliveraddressnumber>1</deliveraddressnumber>"
+							+ "</header>"
+							+ "<lines>";
+						int i = 0;
+						for(Material m : w.getMaterials()){
+							i++;		
+							//subCode is empty for now because werkbonapp doesnt provide this function
+							String subCode = "";
+							string += "<line id=\"" + i + "\">"
+									+ "<article>" + m.getCode() + "</article>"
+									+ "<subarticle>" + subCode + "</subarticle>"
+									+ "<quantity>" + m.getQuantity() + "</quantity>"
+									+ "<units>" + m.getUnit() + "</units>"
+									+ "</line>";
+						}
+						string += "</lines></salesinvoice>";
+						SoapHandler.createSOAPXML(session, string, "workorder");
+					}else{
+						invoiceType = "UREN";
+						invoiceType = "FACTUUR";
+						string = "<teqs><teq>"
+							+ "<header>"
+								//Check this later
+							+ "<code>" + "DIRECT" + "</code>"
+							+ "<user>" + invoiceType + "</user>"
+							+ "<date>" + w.getCreationDate() + "</date>"
+							+ "<prj1>" + w.getWorkDate() + "</prj1>"
+							+ "<prj2>" + w.getCustomerDebtorNr() + "</prj2>"
+							+ "</header>"
+							+ "<lines>"
+							+ "<line type= \"TIME\">"
+							+ "<duration></duration>"
+							+ "<description>" + "description" + "</description>"
+							+ "</line>"
+							+ "<line type=\"QUANTITY\">"
+							+ "</line>"
+							+ "</lines></teq></teqs>";
+						int i = 0;
+						for(Material m : w.getMaterials()){
+							i++;		
+							String subCode = "";
+							if(!m.getSubCode().equals("")){
+								subCode = m.getSubCode();
+							}
+							string += "<line id=\"" + i + "\">"
+									+ "<article>" + m.getCode() + "</article>"
+									+ "<subarticle>" + subCode + "</subarticle>"
+									+ "<quantity>" + m.getQuantity() + "</quantity>"
+									+ "<units>" + m.getUnit() + "</units>"
+									+ "</line>";
+						}
+						string += "</lines></salesinvoice>";
+					}
+					System.out.println(string);
+/*					<salesinvoice>
+						<header>
+							<office>nla005594</office>
+							<invoicetype>FACTUUR</invoicetype>
+							<invoicedate>20161124</invoicedate>
+							<duedate>20161129</duedate>
+							<customer>1000</customer>
+							<status>concept</status>
+							<paymentmethod>cash</paymentmethod>
+							<invoiceaddressnumber>1</invoiceaddressnumber>
+							<deliveraddressnumber>1</deliveraddressnumber>
+						</header>
+						<lines>
+							<line id="1">
+								<article>1</article>
+								<subarticle></subarticle>
+								<quantity>2.00</quantity>
+								<units>1</units>
+							</line>
+						</lines>
+					</salesinvoice>
+					
+					
+						*/
+				}
 				break;
 			}
 			// String temp = "ArrayList:\n";

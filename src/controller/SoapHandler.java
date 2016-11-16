@@ -99,11 +99,7 @@ public class SoapHandler {
 			setHeader(envelope, session);
 
 			// SOAP Body
-			if (type.equals("office")) {
-				setListBody(envelope, data);
-			} else {
-				setReadBody(envelope, data);
-			}
+			setBody(envelope, data);
 			soapMessage.saveChanges();
 
 			soapResponse = soapConnection.call(soapMessage, url);
@@ -120,6 +116,7 @@ public class SoapHandler {
 		}
 		int result = Integer
 				.parseInt(doc.getChildNodes().item(0).getAttributes().getNamedItem("result").getNodeValue());
+		System.out.println("result " + result);
 		if (result != 0) {
 			// System.out.println("soapResponse: " + xmlString);
 			switch (type) {
@@ -207,21 +204,32 @@ public class SoapHandler {
 		}
 	}
 
-	// Set a body with parameter read
-	private static void setReadBody(SOAPEnvelope envelope, String data) throws SOAPException {
-		SOAPBody soapBody = envelope.getBody();
-		SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString", "", "http://www.twinfield.com/");
-		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
-		soapBodyElem1.addTextNode("<![CDATA[<read>" + data + "</read>]]>");
-	}
+	// // Set a body with parameter read
+	// private static void setReadBody(SOAPEnvelope envelope, String data)
+	// throws SOAPException {
+	// SOAPBody soapBody = envelope.getBody();
+	// SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString",
+	// "", "http://www.twinfield.com/");
+	// SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
+	// soapBodyElem1.addTextNode("<![CDATA[<read>" + data + "</read>]]>");
+	// }
 
 	// Set a body with parameter list
-	private static void setListBody(SOAPEnvelope envelope, String data) throws SOAPException {
+	private static void setBody(SOAPEnvelope envelope, String data) throws SOAPException {
 		SOAPBody soapBody = envelope.getBody();
 		SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString", "", "http://www.twinfield.com/");
 		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
-		soapBodyElem1.addTextNode("<![CDATA[<list>" + data + "</list>]]>");
+		soapBodyElem1.addTextNode("<![CDATA[" + data + "]]>");
 	}
+	//
+	// private static void setsaleInvoiceBody(SOAPEnvelope envelope, String
+	// data) throws SOAPException {
+	// SOAPBody soapBody = envelope.getBody();
+	// SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString",
+	// "", "http://www.twinfield.com/");
+	// SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
+	// soapBodyElem1.addTextNode("<![CDATA[<list>" + data + "</list>]]>");
+	// }
 
 	// Global header
 	private static void setHeader(SOAPEnvelope envelope, String session) throws SOAPException {
@@ -254,7 +262,7 @@ public class SoapHandler {
 		String description = projects.item(0).getTextContent();
 		// <validfrom>
 		String dateStart = projects.item(1).getTextContent();
-		if(dateStart.equals("")){
+		if (dateStart.equals("")) {
 			dateStart = "2013-10-01";
 		}
 		// <validfrom>
@@ -293,7 +301,7 @@ public class SoapHandler {
 			subcode = line.item(5).getTextContent();
 			// do something with the subMaterials
 		}
-		m = new Material(code, subcode, unit, description, price);
+		m = new Material(code, subcode, unit, description, price, null);
 
 		return m;
 	}
@@ -321,22 +329,22 @@ public class SoapHandler {
 			NodeList address = addresses.item(i).getChildNodes();
 			phoneNumber = address.item(4).getTextContent();
 			email = address.item(6).getTextContent();
-			if(email.equals("")){
+			if (email.equals("")) {
 				email = "leeg";
 			}
 			String streetNumber[] = address.item(9).getTextContent().split("\\s+");
 			street = streetNumber[0];
 			street.replace("'s", "s");
-			if(street.equals("")){
+			if (street.equals("")) {
 				street = "leeg";
 			}
-			houseNumber = streetNumber[streetNumber.length-1];
+			houseNumber = streetNumber[streetNumber.length - 1];
 			postalCode = address.item(3).getTextContent();
-			if(postalCode.equals("")){
+			if (postalCode.equals("")) {
 				postalCode = "leeg";
 			}
 			city = address.item(2).getTextContent();
-			if(city.equals("")){
+			if (city.equals("")) {
 				city = "leeg";
 			}
 			remark = address.item(8).getTextContent();
@@ -347,7 +355,7 @@ public class SoapHandler {
 
 		return r;
 	}
-	
+
 	// Converts String to Hourtype Object
 	private static Object getHourTypeXML(String soapResponse, Document doc) {
 		HourType h = null;
@@ -359,10 +367,12 @@ public class SoapHandler {
 		// String uid = allData.item(3).getTextContent();
 		// <name>
 		String name = allData.item(4).getTextContent();
-//		h = new HourType(code, name, costBooking, saleBooking, costPrice, salePrice, active);
+		// h = new HourType(code, name, costBooking, saleBooking, costPrice,
+		// salePrice, active);
 		h = new HourType(code, name, 0, 0, 0.0, 0.0, 1);
 		return h;
 	}
+
 	public static ArrayList<String> setArrayList(SOAPMessage response) {
 		ArrayList<String> allItems = new ArrayList<String>();
 		try {

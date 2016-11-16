@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,6 +20,7 @@ import object.rest.HourType;
 import object.rest.Material;
 import object.rest.Project;
 import object.rest.Relation;
+import object.rest.WorkOrder;
 
 public class RestHandler {
 	private static String version = "7";
@@ -50,6 +53,97 @@ public class RestHandler {
 			e.printStackTrace();
 		}
 		return code;
+
+	}
+
+	public static ArrayList<WorkOrder> getData(String token, String type, String stat, boolean updateStatus) {
+		// Header
+		// ProjectNr, performancedate, invoiceaddressnumber,
+		// deliveraddressnumber, customercode, status, paymentmethod(cash, bank,
+		// cheque, cashondelivery, da)
+		String projectNr, workDate, customerEmailInvoice, customerEmail, customerDebtorNr, status, paymentMethod, creationDate;
+		// line
+		String materialCode, materialNr, materialUnit, materialName;
+		double materialPrice;
+		String link = "https://www.werkbonapp.nl/openapi/" + version + "/" + type + "/?token=" + token
+				+ "&software_token=" + softwareToken + "&status=" + stat + "&update_status=" + updateStatus;
+		System.out.println(link);
+		String output = null;
+		ArrayList<WorkOrder> allData = null;
+		try {
+			URL url = new URL(link);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDoOutput(true);
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Content-Type", "application/json");
+			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			while ((output = br.readLine()) != null) {
+				allData = new ArrayList<WorkOrder>();
+				JSONObject json = new JSONObject(output);
+				if (json.getInt("code") == 200) {
+					JSONArray array = json.getJSONArray("object");
+					for (int i = 0; i < array.length(); i++) {
+						JSONObject object = array.getJSONObject(i);
+						projectNr = object.getString("ProjectNr");
+						if (!projectNr.equals("")) {
+							workDate = object.getString("WorkDate");
+							customerEmailInvoice = object.getString("CustomerEmailInvoice");
+							customerEmail = object.getString("CustomerEmail");
+							customerDebtorNr = object.getString("CustomerDebtorNr");
+							status = object.getString("status");
+							creationDate = object.getString("CreationDate");
+							switch (status) {
+							case "Afgehandeld":
+								status = "final";
+								break;
+							case "Klaargezet":
+								status = "concept";
+								break;
+							}
+							paymentMethod = object.getString("PaymentMethod");
+							switch (paymentMethod) {
+							case "pin betaling":
+								paymentMethod = "bank";
+								break;
+							case "contant voldaan":
+								paymentMethod = "cash";
+								break;
+							default:
+								paymentMethod = "bank";
+								break;
+							}
+//							System.out.println("ProjectNr: " + projectNr + " WorkDate " + workDate
+//									+ " customerEmailInvoice " + customerEmailInvoice + " customerEmail "
+//									+ customerEmail + " customerDebtorNr " + customerDebtorNr + " status " + status
+//									+ " paymentMethod " + paymentMethod);
+							JSONArray materials = object.getJSONArray("materials");
+							ArrayList<Material> alleMaterials = new ArrayList<Material>();
+							for (int j = 0; j < materials.length(); j++) {
+								JSONObject material = materials.getJSONObject(j);
+								materialCode = material.getString("MaterialCode");
+								materialNr = material.getString("MaterialNr");
+								materialUnit = material.getString("MaterialUnit");
+								materialName = material.getString("MaterialName");
+								materialPrice = material.getDouble("MaterialPrice");
+								Material m = new Material(materialCode, materialCode, materialUnit, materialName,
+										materialPrice, materialNr);
+								alleMaterials.add(m);
+//								System.out.println("materialCode: " + materialCode + " materialNr: " + materialNr
+//										+ " materialUnit: " + materialUnit + " materialName: " + materialName
+//										+ " materialPrice: " + materialPrice);
+							}
+							WorkOrder w = new WorkOrder(projectNr, workDate, customerEmailInvoice, customerEmail,
+									customerDebtorNr, status, paymentMethod, alleMaterials, creationDate);
+							allData.add(w);
+						}
+					}
+				}
+
+			}
+		} catch (IOException | JSONException e) {
+			e.printStackTrace();
+		}
+		return allData;
 
 	}
 
@@ -86,11 +180,10 @@ public class RestHandler {
 
 		BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 		String output;
-		// System.out.println("Output from Server .... \n");
-		// while ((output = br.readLine()) != null) {
-		// System.out.println(output);
-		// }
-
+		System.out.println("Output from Server .... \n");
+		while ((output = br.readLine()) != null) {
+			System.out.println(output);
+		}
 		conn.disconnect();
 
 	}
@@ -170,10 +263,8 @@ public class RestHandler {
 		String input = "[";
 		int i = 1;
 		for (Material m : array) {
-			String code = m.getSubCode();
-			if (m.getSubCode().equals("")) {
-				code = m.getCode();
-			}
+			String code = m.getCode();
+			
 			if (i == array.size()) {
 				input += "{\"code\":\"" + code + "\",\"description\":\"" + m.getDescription() + "\",\"price\":\""
 						+ m.getPrice() + "\",\"unit\":\"" + m.getUnit() + "\"}";
