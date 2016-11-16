@@ -233,20 +233,21 @@ public class RestHandler {
 		@SuppressWarnings("unchecked")
 		ArrayList<Relation> array = (ArrayList<Relation>) obj;
 		String input = "[";
-		int i = 1;
+		int i = 0;
 		for (Relation r : array) {
+			i++;
 			//posts the same relation with different addresses
+			int j = 0;
 			for(Address a : r.getAddressess()){
-				if (i == array.size()) {
-					i++;
+				j++;
+				if (i == array.size() && j == r.getAddressess().size()) {					
 					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
 							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
 							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
 							+ "\",\"remark\":\"" + a.getRemark() + "\"}";
-				} else {
-					i++;
+				} else {					
 					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
 							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
 							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
@@ -256,7 +257,9 @@ public class RestHandler {
 				}
 			}
 		}
+		System.out.println("input " + input);
 		return input += "]";
+		
 	}
 
 	public static String materialInput(Object obj) {

@@ -78,7 +78,6 @@ public class ObjectDAO {
 
 	public static void saveRelations(ArrayList<Relation> relations, String token) {
 		try {
-
 			Connection con = DBConnection.createDatabaseConnection();
 			statement = con.createStatement();
 			for (Relation r : relations) {
