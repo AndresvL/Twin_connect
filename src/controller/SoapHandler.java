@@ -100,7 +100,7 @@ public class SoapHandler {
 			setHeader(envelope, session);
 
 			// SOAP Body
-			setBody(envelope, data);
+			setXMLBody(envelope, data);
 			soapMessage.saveChanges();
 
 			soapResponse = soapConnection.call(soapMessage, url);
@@ -115,11 +115,12 @@ public class SoapHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("RESPONSE " + xmlString);
 		int result = Integer
 				.parseInt(doc.getChildNodes().item(0).getAttributes().getNamedItem("result").getNodeValue());
 		// Check if SOAP result is 0 or 1
 		if (result != 0) {
-			// System.out.println("soapResponse: " + xmlString);
+			
 			switch (type) {
 			case "project":
 				obj = getProjectXML(xmlString, doc);
@@ -204,34 +205,13 @@ public class SoapHandler {
 			}
 		}
 	}
-
-	// // Set a body with parameter read
-	// private static void setReadBody(SOAPEnvelope envelope, String data)
-	// throws SOAPException {
-	// SOAPBody soapBody = envelope.getBody();
-	// SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString",
-	// "", "http://www.twinfield.com/");
-	// SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
-	// soapBodyElem1.addTextNode("<![CDATA[<read>" + data + "</read>]]>");
-	// }
-
 	// Set a body with parameter list
-	private static void setBody(SOAPEnvelope envelope, String data) throws SOAPException {
+	private static void setXMLBody(SOAPEnvelope envelope, String data) throws SOAPException {
 		SOAPBody soapBody = envelope.getBody();
 		SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString", "", "http://www.twinfield.com/");
 		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
 		soapBodyElem1.addTextNode("<![CDATA[" + data + "]]>");
 	}
-	//
-	// private static void setsaleInvoiceBody(SOAPEnvelope envelope, String
-	// data) throws SOAPException {
-	// SOAPBody soapBody = envelope.getBody();
-	// SOAPElement soapBodyElem = soapBody.addChildElement("ProcessXmlString",
-	// "", "http://www.twinfield.com/");
-	// SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
-	// soapBodyElem1.addTextNode("<![CDATA[<list>" + data + "</list>]]>");
-	// }
-
 	// Global header
 	private static void setHeader(SOAPEnvelope envelope, String session) throws SOAPException {
 		envelope.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");

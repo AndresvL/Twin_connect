@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import DAO.TokenDAO;
 import controller.OAuthTwinfield;
 import controller.RestHandler;
 import controller.SoapHandler;
@@ -35,16 +36,29 @@ public class OAuthServlet extends HttpServlet {
 				resp.sendRedirect(
 						"https://login.twinfield.com/oauth/login.aspx?oauth_token=" + checkToken.getTempToken());
 			} else {
-				System.out.println("else");
 				String sessionID = SoapHandler.getSession(checkToken);
-				@SuppressWarnings("unchecked")
-				ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID,
-						"<list><type>offices</type></list>", "office");
 				RequestDispatcher rd = null;
-				rd = req.getRequestDispatcher("adapter.jsp");
-				req.getSession().setAttribute("session", sessionID);
-				req.getSession().setAttribute("softwareToken", softwareToken);
-				req.getSession().setAttribute("offices", offices);
+				if(sessionID != null){
+					System.out.println("session " +sessionID);
+					@SuppressWarnings("unchecked")
+					ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID,
+							"<list><type>offices</type></list>", "office");
+					
+					rd = req.getRequestDispatcher("adapter.jsp");
+					req.getSession().setAttribute("session", sessionID);
+					req.getSession().setAttribute("softwareToken", softwareToken);
+					req.getSession().setAttribute("offices", offices);
+					
+				}else{
+					rd = req.getRequestDispatcher("adapter.jsp");
+					try {
+						TokenDAO.deleteToken(softwareToken);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					req.getSession().setAttribute("error", "try again");
+				}				
 				rd.forward(req, resp);
 			}
 		}else{

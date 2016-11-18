@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,6 +13,7 @@ import DAO.ObjectDAO;
 import controller.RestHandler;
 import controller.SoapHandler;
 import object.Search;
+import object.rest.Address;
 import object.rest.Employee;
 import object.rest.HourType;
 import object.rest.Material;
@@ -167,7 +169,14 @@ public class ImportDataServlet extends HttpServlet {
 				ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
 				for(WorkOrder w : allData){
 					String string = null;
-					if(w.getProjectNr().equals("")){
+					if(!w.getProjectNr().equals("")){
+						Address factuur = null;
+						Address post = null;
+						post = ObjectDAO.getAddressID(token, "postal", w.getCustomerDebtorNr());
+						factuur = ObjectDAO.getAddressID(token, "invoice", w.getCustomerDebtorNr());
+						if(post == null){
+							post = factuur;
+						}
 						invoiceType = "FACTUUR";
 						string = "<salesinvoice>"
 							+ "<header>"
@@ -177,9 +186,9 @@ public class ImportDataServlet extends HttpServlet {
 							+ "<duedate>" + w.getWorkDate() + "</duedate>"
 							+ "<customer>" + w.getCustomerDebtorNr() + "</customer>"
 							+ "<status>" + w.getStatus() + "</status>"
-							+ "<paymentmethod>"+ w.getPaymentMethod() + "</paymentmethod>"
-							+ "<invoiceaddressnumber>1</invoiceaddressnumber>"
-							+ "<deliveraddressnumber>1</deliveraddressnumber>"
+							+ "<paymentmethod>" + w.getPaymentMethod() + "</paymentmethod>"
+							+ "<invoiceaddressnumber>" + factuur.getAddressId() + "</invoiceaddressnumber>"
+							+ "<deliveraddressnumber>" + post.getAddressId() + "</deliveraddressnumber>"
 							+ "</header>"
 							+ "<lines>";
 						int i = 0;
@@ -195,6 +204,7 @@ public class ImportDataServlet extends HttpServlet {
 									+ "</line>";
 						}
 						string += "</lines></salesinvoice>";
+						System.out.println("string " + string);
 						SoapHandler.createSOAPXML(session, string, "workorder");
 					}else{
 						invoiceType = "UREN";

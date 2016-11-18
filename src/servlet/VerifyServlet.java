@@ -25,11 +25,12 @@ public class VerifyServlet extends HttpServlet {
 		RequestDispatcher rd = null;
 		@SuppressWarnings("unchecked")
 		ArrayList<String> offices = (ArrayList<String>) SoapHandler.createSOAPXML(sessionID,
-				"<type>offices</type>", "office");
+				"<list><type>offices</type></list>", "office");
 		rd = req.getRequestDispatcher("adapter.jsp");
 		req.getSession().setAttribute("offices", offices);
 		req.getSession().setAttribute("softwareToken", token.getSoftwareToken());
 		req.getSession().setAttribute("session", sessionID);
+		System.out.println("office " + offices);
 		rd.forward(req, resp);
 	}
 }

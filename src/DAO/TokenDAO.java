@@ -31,8 +31,8 @@ public class TokenDAO {
 		String token = null;
 		Connection con = DBConnection.createDatabaseConnection();
 		statement = con.createStatement();
-		output = statement.executeQuery("SELECT * FROM credentials WHERE softwareToken =\""+ softwareToken +"\"");
-		while(output.next()) {
+		output = statement.executeQuery("SELECT * FROM credentials WHERE softwareToken =\"" + softwareToken + "\"");
+		while (output.next()) {
 			token = output.getString("softwareToken");
 		}
 		return token;
@@ -50,5 +50,12 @@ public class TokenDAO {
 							+ "')");
 			con.close();
 		}
+	}
+
+	public static void deleteToken(String softwareToken) throws SQLException {
+		Connection con = DBConnection.createDatabaseConnection();
+		statement = con.createStatement();
+		statement.execute("DELETE FROM credentials WHERE softwareToken =\"" + softwareToken + "\"");
+		con.close();
 	}
 }

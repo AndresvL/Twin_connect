@@ -3,7 +3,9 @@ package object.rest;
 public class Address {
 	private String name, phoneNumber, email, street, houseNumber, postalCode, city, remark, type;
 	private int addressId;
-
+	public Address(){
+		
+	}
 	public Address(String name, String phoneNumber, String email, String street, String houseNumber, String postalCode,
 			String city, String remark, String type, int addressId) {
 		this.name = name;

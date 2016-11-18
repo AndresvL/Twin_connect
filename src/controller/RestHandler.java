@@ -257,7 +257,6 @@ public class RestHandler {
 				}
 			}
 		}
-		System.out.println("input " + input);
 		return input += "]";
 		
 	}
