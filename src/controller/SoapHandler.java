@@ -240,6 +240,7 @@ public class SoapHandler {
 		NodeList projects = doc.getElementsByTagName("projects").item(0).getChildNodes();
 		// <invoicedescription>
 		String description = projects.item(0).getTextContent();
+		String authoriser = projects.item(1).getTextContent();
 		// <validfrom>
 		String dateStart = projects.item(1).getTextContent();
 		if (dateStart.equals("")) {
@@ -254,7 +255,7 @@ public class SoapHandler {
 		if (status.equals("active")) {
 			active = 1;
 		}
-		p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description, 0, active);
+		p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description, 0, active, authoriser);
 
 		return p;
 	}

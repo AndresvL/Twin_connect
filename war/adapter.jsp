@@ -34,7 +34,8 @@
 			value="getMaterials" name="category" /> <input type="submit"
 			value="getProjects" name="category" /> <input type="submit"
 			value="getRelations" name="category" /> <input type="submit"
-			value="getHourTypes" name="category" />
+			value="getHourTypes" name="category" /> <input type="submit"
+			value="alles" name="category" />
 	</form>
 	<form action="import.do">
 		<select name="offices">

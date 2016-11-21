@@ -2,7 +2,7 @@ package object.rest;
 
 
 public class Project {
-	private String code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description;
+	private String code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description, authoriser;
 	private int progress, active;
 	
 	public Project(String code, String name){
@@ -10,7 +10,7 @@ public class Project {
 		this.name = name;
 	}
 	
-	public Project(String code, String code_ext, String debtor_number, String status, String name, String date_start, String date_end, String description, int progress, int active){
+	public Project(String code, String code_ext, String debtor_number, String status, String name, String date_start, String date_end, String description, int progress, int active, String authoriser){
 		this.code = code;
 		this.code_ext = code_ext;
 		this.debtorNumber = debtor_number;
@@ -21,6 +21,7 @@ public class Project {
 		this.description = description;
 		this.progress = progress;
 		this.active = active;
+		this.setAuthoriser(authoriser);
 	}
 	
 	public String getCode() {
@@ -82,6 +83,14 @@ public class Project {
 	}
 	public void setActive(int active) {
 		this.active = active;
+	}
+
+	public String getAuthoriser() {
+		return authoriser;
+	}
+
+	public void setAuthoriser(String authoriser) {
+		this.authoriser = authoriser;
 	}
 	
 }
