@@ -171,7 +171,6 @@ public class SoapHandler {
 			soapConnection.close();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -232,7 +231,7 @@ public class SoapHandler {
 		// <code>
 		String code = allData.item(2).getTextContent();
 		// <uid>
-		String code_ext = allData.item(3).getTextContent();
+		String code_ext = "Onbekend";
 		// <name>
 		String name = allData.item(4).getTextContent();
 		// <dimension status>
@@ -344,7 +343,6 @@ public class SoapHandler {
 				city = "leeg";
 			}
 			remark = address.item(8).getTextContent();
-			// do something with the different addresses
 			Address a = new Address(name, phoneNumber, email, street, houseNumber, postalCode, city, remark, type, addressId);
 			allAddresses.add(a);
 		}		
@@ -406,7 +404,6 @@ public class SoapHandler {
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return allItems;

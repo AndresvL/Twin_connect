@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -167,9 +166,10 @@ public class ImportDataServlet extends HttpServlet {
 				break;
 			case "getWorkorder":
 				ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
+				String hourString = "<teqs>";
 				for(WorkOrder w : allData){
-					String string = null;
-					if(!w.getProjectNr().equals("")){
+					String string = null;					
+					if(w.getProjectNr().equals("")){
 						Address factuur = null;
 						Address post = null;
 						post = ObjectDAO.getAddressID(token, "postal", w.getCustomerDebtorNr());
@@ -208,66 +208,30 @@ public class ImportDataServlet extends HttpServlet {
 						SoapHandler.createSOAPXML(session, string, "workorder");
 					}else{
 						invoiceType = "UREN";
-						invoiceType = "FACTUUR";
-						string = "<teqs><teq>"
+						hourString += "<teq>"
 							+ "<header>"
-								//Check this later
+							+ "<office>" + office + "</office>"
+							//Check this later
 							+ "<code>" + "DIRECT" + "</code>"
-							+ "<user>" + invoiceType + "</user>"
-							+ "<date>" + w.getCreationDate() + "</date>"
-							+ "<prj1>" + w.getWorkDate() + "</prj1>"
-							+ "<prj2>" + w.getCustomerDebtorNr() + "</prj2>"
+							+ "<user>" + w.getEmployeeNr() + "</user>"
+							+ "<date>" + w.getWorkDate() + "</date>"
+							+ "<prj1>" + w.getProjectNr() + "</prj1>"
+							+ "<prj2>" + w.getHourType() + "</prj2>"
 							+ "</header>"
 							+ "<lines>"
 							+ "<line type= \"TIME\">"
-							+ "<duration></duration>"
-							+ "<description>" + "description" + "</description>"
+							+ "<duration>"+  w.getDuration() +"</duration>"
+							+ "<description>" + w.getDescription() + "</description>"
 							+ "</line>"
 							+ "<line type=\"QUANTITY\">"
 							+ "</line>"
-							+ "</lines></teq></teqs>";
-						int i = 0;
-						for(Material m : w.getMaterials()){
-							i++;		
-							String subCode = "";
-							if(!m.getSubCode().equals("")){
-								subCode = m.getSubCode();
-							}
-							string += "<line id=\"" + i + "\">"
-									+ "<article>" + m.getCode() + "</article>"
-									+ "<subarticle>" + subCode + "</subarticle>"
-									+ "<quantity>" + m.getQuantity() + "</quantity>"
-									+ "<units>" + m.getUnit() + "</units>"
-									+ "</line>";
-						}
-						string += "</lines></salesinvoice>";
+							+ "</lines></teq>";						
 					}
-//					System.out.println(string);
-/*					<salesinvoice>
-						<header>
-							<office>nla005594</office>
-							<invoicetype>FACTUUR</invoicetype>
-							<invoicedate>20161124</invoicedate>
-							<duedate>20161129</duedate>
-							<customer>1000</customer>
-							<status>concept</status>
-							<paymentmethod>cash</paymentmethod>
-							<invoiceaddressnumber>1</invoiceaddressnumber>
-							<deliveraddressnumber>1</deliveraddressnumber>
-						</header>
-						<lines>
-							<line id="1">
-								<article>1</article>
-								<subarticle></subarticle>
-								<quantity>2.00</quantity>
-								<units>1</units>
-							</line>
-						</lines>
-					</salesinvoice>
 					
-					
-						*/
 				}
+				hourString += "</teqs>";
+				System.out.println("string " + hourString);
+//				SoapHandler.createSOAPXML(session, hourString, "workorder");
 				break;
 			}
 			// String temp = "ArrayList:\n";

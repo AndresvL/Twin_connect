@@ -61,7 +61,9 @@ public class RestHandler {
 		// ProjectNr, performancedate, invoiceaddressnumber,
 		// deliveraddressnumber, customercode, status, paymentmethod(cash, bank,
 		// cheque, cashondelivery, da)
-		String projectNr, workDate, customerEmailInvoice, customerEmail, customerDebtorNr, status, paymentMethod, creationDate;
+		String projectNr, workDate = null, customerEmailInvoice, customerEmail, customerDebtorNr, status, paymentMethod,
+				creationDate;
+		String employeeNr = null, hourType = null, description = null, duration = null;
 		// line
 		String materialCode, materialNr, materialUnit, materialName;
 		double materialPrice;
@@ -78,17 +80,19 @@ public class RestHandler {
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 			while ((output = br.readLine()) != null) {
 				allData = new ArrayList<WorkOrder>();
+				WorkOrder w = null;
 				JSONObject json = new JSONObject(output);
 				if (json.getInt("code") == 200) {
 					JSONArray array = json.getJSONArray("object");
 					for (int i = 0; i < array.length(); i++) {
 						JSONObject object = array.getJSONObject(i);
 						projectNr = object.getString("ProjectNr");
-						if (!projectNr.equals("")) {
+						if (projectNr.equals("")) {
 							workDate = object.getString("WorkDate");
 							customerEmailInvoice = object.getString("CustomerEmailInvoice");
 							customerEmail = object.getString("CustomerEmail");
 							customerDebtorNr = object.getString("CustomerDebtorNr");
+							employeeNr = object.getString("EmployeeNr");
 							status = object.getString("status");
 							creationDate = object.getString("CreationDate");
 							switch (status) {
@@ -96,6 +100,9 @@ public class RestHandler {
 								status = "final";
 								break;
 							case "Klaargezet":
+								status = "concept";
+								break;
+							default:
 								status = "concept";
 								break;
 							}
@@ -111,10 +118,6 @@ public class RestHandler {
 								paymentMethod = "bank";
 								break;
 							}
-//							System.out.println("ProjectNr: " + projectNr + " WorkDate " + workDate
-//									+ " customerEmailInvoice " + customerEmailInvoice + " customerEmail "
-//									+ customerEmail + " customerDebtorNr " + customerDebtorNr + " status " + status
-//									+ " paymentMethod " + paymentMethod);
 							JSONArray materials = object.getJSONArray("materials");
 							ArrayList<Material> alleMaterials = new ArrayList<Material>();
 							for (int j = 0; j < materials.length(); j++) {
@@ -127,12 +130,22 @@ public class RestHandler {
 								Material m = new Material(materialCode, materialCode, materialUnit, materialName,
 										materialPrice, materialNr);
 								alleMaterials.add(m);
-//								System.out.println("materialCode: " + materialCode + " materialNr: " + materialNr
-//										+ " materialUnit: " + materialUnit + " materialName: " + materialName
-//										+ " materialPrice: " + materialPrice);
 							}
-							WorkOrder w = new WorkOrder(projectNr, workDate, customerEmailInvoice, customerEmail,
+							w = new WorkOrder(projectNr, workDate, customerEmailInvoice, customerEmail,
 									customerDebtorNr, status, paymentMethod, alleMaterials, creationDate);
+							allData.add(w);
+						} else {
+							JSONArray periods = object.getJSONArray("workperiods");
+							for (int j = 0; j < periods.length(); j++) {
+								JSONObject period = periods.getJSONObject(j);
+								employeeNr = period.getString("EmployeeNr");
+								hourType = period.getString("hourType");
+								workDate = period.getString("WorkDate");
+								description = period.getString("WorkRemark");
+								duration = period.getString("TotalTime");
+							}
+							duration = "2:45";
+							w = new WorkOrder(employeeNr, hourType, workDate, projectNr, description, duration);
 							allData.add(w);
 						}
 					}
@@ -212,14 +225,14 @@ public class RestHandler {
 		int i = 1;
 		for (Project p : array) {
 			if (i == array.size()) {
-				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + p.getCode_ext()
+				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + "leeg"
 						+ "\",\"debtor_number\":\"" + p.getDebtor_number() + "\",\"status\":\"" + p.getStatus()
 						+ "\",\"name\":\"" + p.getName() + "\",\"description\":\"" + p.getDescription()
 						+ "\",\"progress\":\"" + p.getProgress() + "\",\"date_start\":\"" + p.getDate_start()
 						+ "\",\"date_end\":\"" + p.getDate_end() + "\",\"active\":\"" + p.getActive() + "\"}";
 			} else {
 				i++;
-				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + p.getCode_ext()
+				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + "leeg"
 						+ "\",\"debtor_number\":\"" + p.getDebtor_number() + "\",\"status\":\"" + p.getStatus()
 						+ "\",\"name\":\"" + p.getName() + "\",\"description\":\"" + p.getDescription()
 						+ "\",\"progress\":\"" + p.getProgress() + "\",\"date_start\":\"" + p.getDate_start()
@@ -236,20 +249,20 @@ public class RestHandler {
 		int i = 0;
 		for (Relation r : array) {
 			i++;
-			//posts the same relation with different addresses
+			// posts the same relation with different addresses
 			int j = 0;
-			for(Address a : r.getAddressess()){
+			for (Address a : r.getAddressess()) {
 				j++;
-				if (i == array.size() && j == r.getAddressess().size()) {					
+				if (i == array.size() && j == r.getAddressess().size()) {
 					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
-							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
+							+ "\",\"contact\":\"" + "leeg" + "\",\"phone_number\":\"" + a.getPhoneNumber()
 							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
 							+ "\",\"remark\":\"" + a.getRemark() + "\"}";
-				} else {					
+				} else {
 					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
-							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
+							+ "\",\"contact\":\"" + "leeg" + "\",\"phone_number\":\"" + a.getPhoneNumber()
 							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
@@ -258,7 +271,7 @@ public class RestHandler {
 			}
 		}
 		return input += "]";
-		
+
 	}
 
 	public static String materialInput(Object obj) {
@@ -268,7 +281,7 @@ public class RestHandler {
 		int i = 1;
 		for (Material m : array) {
 			String code = m.getCode();
-			
+
 			if (i == array.size()) {
 				input += "{\"code\":\"" + code + "\",\"description\":\"" + m.getDescription() + "\",\"price\":\""
 						+ m.getPrice() + "\",\"unit\":\"" + m.getUnit() + "\"}";
