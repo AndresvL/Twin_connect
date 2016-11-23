@@ -22,11 +22,12 @@ import object.rest.WorkOrder;
 
 public class ImportDataServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	String invoiceType;
-	ArrayList<String> responseArray = null;
-	String[][] options = null;
-	Search searchObject;
-	String errorMessage = null;
+	private String invoiceType;
+	private ArrayList<String> responseArray = null;
+	private String[][] options = null;
+	private Search searchObject;
+	private String errorMessage = "";
+	int percentage = 0, perTotal = 0;
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String button = req.getParameter("category");
@@ -40,8 +41,7 @@ public class ImportDataServlet extends HttpServlet {
 			getProjects(office, session, token);
 			getRelations(office, session, token);
 			getHourTypes(office, session, token);
-		}
-		else{
+		} else {
 			switch (button) {
 			case "getEmployees":
 				getEmployees(office, session, token);
@@ -65,84 +65,7 @@ public class ImportDataServlet extends HttpServlet {
 				setDelay(false);
 				break;
 			case "getWorkorder":
-				ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
-				String hourString = "<teqs>";
-				for (WorkOrder w : allData) {
-					String string = null;
-					if (w.getProjectNr().equals("")) {
-						Address factuur = null;
-						Address post = null;
-						post = ObjectDAO.getAddressID(token, "postal", w.getCustomerDebtorNr());
-						factuur = ObjectDAO.getAddressID(token, "invoice", w.getCustomerDebtorNr());
-						if (post == null) {
-							post = factuur;
-						}
-						invoiceType = "FACTUUR";
-						string = "<salesinvoice>" + "<header>" + "<office>" + office + "</office>" + "<invoicetype>"
-								+ invoiceType + "</invoicetype>" + "<invoicedate>" + w.getCreationDate()
-								+ "</invoicedate>" + "<duedate>" + w.getWorkDate() + "</duedate>" + "<customer>"
-								+ w.getCustomerDebtorNr() + "</customer>" + "<status>" + w.getStatus() + "</status>"
-								+ "<paymentmethod>" + w.getPaymentMethod() + "</paymentmethod>"
-								+ "<invoiceaddressnumber>" + factuur.getAddressId() + "</invoiceaddressnumber>"
-								+ "<deliveraddressnumber>" + post.getAddressId() + "</deliveraddressnumber>"
-								+ "</header>" + "<lines>";
-						int i = 0;
-						for (Material m : w.getMaterials()) {
-							i++;
-							// subCode is empty for now because werkbonapp
-							// doesnt provide this function
-							String subCode = "";
-							string += "<line id=\"" + i + "\">" + "<article>" + m.getCode() + "</article>"
-									+ "<subarticle>" + subCode + "</subarticle>" + "<quantity>" + m.getQuantity()
-									+ "</quantity>" + "<units>" + m.getUnit() + "</units>" + "</line>";
-						}
-						string += "</lines></salesinvoice>";
-						System.out.println("string " + string);
-						SoapHandler.createSOAPXML(session, string, "workorder");
-					} else {
-						// String readString =
-						// "<read><type>dimensions</type><office>" + office +
-						// "</office><dimtype>PRJ</dimtype><code>" +
-						// w.getProjectNr() + "</code></read>";
-						// Object obj = SoapHandler.createSOAPXML(session,
-						// readString, "project");
-						// Project p = null;
-						String code = "test";
-						// if (obj != null) {
-						// p = (Project) obj;
-						// code = p.getAuthoriser();
-						// if(code.equals(w.getEmployeeNr())){
-						// code = "DIRECT";
-						// }
-						// }
-						String projectNr = w.getProjectNr();
-						if (projectNr.startsWith("FP")) {
-							code = "DIRECT";
-						}
-						if (projectNr.startsWith("NF")) {
-							code = "INDIRECT";
-						}
-						if (projectNr.startsWith("IP1000")) {
-							code = "PERSONAL";
-						}
-						System.out.println("project type " + code + " nr " + projectNr + " startswith "
-								+ projectNr.startsWith("FP"));
-
-						invoiceType = "UREN";
-						hourString += "<teq>" + "<header>" + "<office>" + office + "</office>"
-						// Check this later
-								+ "<code>" + "PERSONAL" + "</code>" + "<user>" + w.getEmployeeNr() + "</user>"
-								+ "<date>" + w.getWorkDate() + "</date>" + "<prj1>" + w.getProjectNr() + "</prj1>"
-								+ "<prj2>" + w.getHourType() + "</prj2>" + "</header>" + "<lines>"
-								+ "<line type= \"TIME\">" + "<duration>" + w.getDuration() + "</duration>"
-								+ "<description>" + w.getDescription() + "</description>" + "</line>"
-								+ "<line type=\"QUANTITY\">" + "</line>" + "</lines></teq>";
-					}
-
-				}
-				hourString += "</teqs>";
-				System.out.println("string " + hourString);
-				// SoapHandler.createSOAPXML(session, hourString, "workorder");
+				getWorkOrders(office, session, token, factuurType);
 				break;
 			}
 		}
@@ -164,6 +87,17 @@ public class ImportDataServlet extends HttpServlet {
 		}
 	}
 
+	class MyTask extends TimerTask {
+		private int i = 0;
+
+		@Override
+		public void run() {
+			i++;
+			System.out.println("nummer " + i);
+		}
+
+	}
+
 	public void getEmployees(String office, String session, String token) throws ServletException, IOException {
 		// Create search object
 		// Parameters: type, pattern, field, firstRow, maxRows, options
@@ -177,13 +111,15 @@ public class ImportDataServlet extends HttpServlet {
 			// firstName and Lastname are identical
 			Employee e = new Employee(parts[1], parts[1], parts[0]);
 			emp.add(e);
+			percentage++;
 		}
 		if (!emp.isEmpty()) {
 			ObjectDAO.saveEmployees(emp, token);
 			// Post data to WorkorderApp
 			RestHandler.addData(token, emp, "employees");
+			errorMessage += "Employees imported<br />";
 		} else {
-			errorMessage = "No Employees found";
+			errorMessage += "No Employees found<br />";
 		}
 	}
 
@@ -203,13 +139,15 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				Project p = (Project) obj;
 				projects.add(p);
+				percentage++;
 			}
 		}
 		if (!projects.isEmpty()) {
 			ObjectDAO.saveProjects(projects, token);
 			RestHandler.addData(token, projects, "projects");
+			errorMessage += "Projects imported<br />";
 		} else {
-			errorMessage = "Office " + office + " heeft geen projecten";
+			errorMessage += "Office " + office + " heeft geen projecten<br />";
 		}
 	}
 
@@ -228,14 +166,16 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				Material m = (Material) obj;
 				materials.add(m);
+				percentage++;
 			}
 
 		}
 		if (!materials.isEmpty()) {
 			ObjectDAO.saveMaterials(materials, token);
 			RestHandler.addData(token, materials, "materials");
+			errorMessage += "Materials imported<br />";
 		} else {
-			errorMessage = "Office " + office + " heeft geen materialen";
+			errorMessage += "Office " + office + " heeft geen materialen<br />";
 		}
 	}
 
@@ -254,13 +194,15 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				Relation r = (Relation) obj;
 				relations.add(r);
+				percentage++;
 			}
 		}
 		if (!relations.isEmpty()) {
 			ObjectDAO.saveRelations(relations, token);
 			RestHandler.addData(token, relations, "relations");
+			errorMessage += "Relations imported<br />";
 		} else {
-			errorMessage = "Office " + office + " heeft geen relations";
+			errorMessage += "Office " + office + " heeft geen relations<br />";
 		}
 	}
 
@@ -280,25 +222,79 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				HourType h = (HourType) obj;
 				hourtypes.add(h);
+				percentage++;
 			}
 		}
 		if (!hourtypes.isEmpty()) {
 			ObjectDAO.saveHourTypes(hourtypes, token);
 			RestHandler.addData(token, hourtypes, "hourtypes");
+			errorMessage = "Hourtypes imported<br />";
 		} else {
-			errorMessage = "Office " + office + " heeft geen hourtypes";
+			errorMessage += "Office " + office + " heeft geen hourtypes<br />";
 		}
 	}
 
-	class MyTask extends TimerTask {
-		private int i = 0;
+	public void getWorkOrders(String office, String session, String token, String factuurType) {
+		ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
+		String hourString = "<teqs>";
+		for (WorkOrder w : allData) {
+			String string = null;
+			if (w.getProjectNr().equals("")) {
+				Address factuur = null;
+				Address post = null;
+				post = ObjectDAO.getAddressID(token, "postal", w.getCustomerDebtorNr());
+				factuur = ObjectDAO.getAddressID(token, "invoice", w.getCustomerDebtorNr());
+				if (post == null) {
+					post = factuur;
+				}
+				invoiceType = "FACTUUR";
+				string = "<salesinvoice>" + "<header>" + "<office>" + office + "</office>" + "<invoicetype>"
+						+ invoiceType + "</invoicetype>" + "<invoicedate>" + w.getCreationDate() + "</invoicedate>"
+						+ "<duedate>" + w.getWorkDate() + "</duedate>" + "<customer>" + w.getCustomerDebtorNr()
+						+ "</customer>" + "<status>" + w.getStatus() + "</status>" + "<paymentmethod>"
+						+ w.getPaymentMethod() + "</paymentmethod>" + "<invoiceaddressnumber>" + factuur.getAddressId()
+						+ "</invoiceaddressnumber>" + "<deliveraddressnumber>" + post.getAddressId()
+						+ "</deliveraddressnumber>" + "</header>" + "<lines>";
+				int i = 0;
+				for (Material m : w.getMaterials()) {
+					i++;
+					// subCode is empty for now because werkbonapp
+					// doesnt provide this function
+					String subCode = "";
+					string += "<line id=\"" + i + "\">" + "<article>" + m.getCode() + "</article>" + "<subarticle>"
+							+ subCode + "</subarticle>" + "<quantity>" + m.getQuantity() + "</quantity>" + "<units>"
+							+ m.getUnit() + "</units>" + "</line>";
+				}
+				string += "</lines></salesinvoice>";
+				System.out.println("string " + string);
+				SoapHandler.createSOAPXML(session, string, "workorder");
+				errorMessage = "Invoice created";
+			} else {
+				String code = "PERSONAL";
+				String projectNr = w.getProjectNr();
+				if (projectNr.startsWith("FP")) {
+					code = "DIRECT";
+				}
+				if (projectNr.startsWith("NF")) {
+					code = "INDIRECT";
+				}
+				if (projectNr.startsWith("IP1000")) {
+					code = "PERSONAL";
+				}
+				invoiceType = "UREN";
+				hourString += "<teq>" + "<header>" + "<office>" + office + "</office>"
+				// Check this later
+						+ "<code>" + "PERSONAL" + "</code>" + "<user>" + w.getEmployeeNr() + "</user>" + "<date>"
+						+ w.getWorkDate() + "</date>" + "<prj1>" + w.getProjectNr() + "</prj1>" + "<prj2>"
+						+ w.getHourType() + "</prj2>" + "</header>" + "<lines>" + "<line type= \"TIME\">" + "<duration>"
+						+ w.getDuration() + "</duration>" + "<description>" + w.getDescription() + "</description>"
+						+ "</line>" + "<line type=\"QUANTITY\">" + "</line>" + "</lines></teq>";
+			}
 
-		@Override
-		public void run() {
-			i++;
-			System.out.println("nummer " + i);
 		}
-
+		hourString += "</teqs>";
+		System.out.println("string " + hourString);
+		errorMessage = "Uurboeking imported\n";
+		SoapHandler.createSOAPXML(session, hourString, "workorder");
 	}
-
 }

@@ -7,6 +7,18 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Twinfield Connect</title>
+	<!-- <script type="text/javascript">
+	    function showLoadBar() {    	
+	    	if (timeoutCount < 100) {
+	    		document.getElementById('error').innerHTML = 'You have ' + (timeoutCount) + 'seconds until timeout' + userName;    		
+	        }
+	        setTimeout(function () { startTimer(timeoutCount-1);}, '500');
+	    }
+	    function refreshTimer() {
+	        killTimer(timeoutHandle);
+	        startTimer(99);
+	    }
+	 </script> -->
 </head>
 <body>
 	<form action="OAuth.do">
@@ -14,12 +26,11 @@
 			value="e0aa544680b8cbee18a15b6650600db2"> <input
 			type="submit" value="Get Access" />
 	</form>
-
 	<div>
-		<input type="text" name="session" value="${session}" disabled>
+		<input type="text" id="session" name="session" value="${session}"
+			disabled>
 	</div>
-	<div>${error}</div>
-
+	<div id="error">${error}</div>
 	<textarea rows="30" cols="70" style="border: none;"><c:out
 			value="${soap}" /></textarea>
 
