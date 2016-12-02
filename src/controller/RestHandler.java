@@ -136,21 +136,22 @@ public class RestHandler {
 							allData.add(w);
 						} else {
 							JSONArray periods = object.getJSONArray("workperiods");
-							for (int j = 0; j < periods.length(); j++) {
-								JSONObject period = periods.getJSONObject(j);
-								employeeNr = period.getString("EmployeeNr");
-								hourType = period.getString("hourType");
-								workDate = period.getString("WorkDate");
-								description = period.getString("WorkRemark");
-								duration = period.getString("TotalTime");
+							
+							if (periods.length() > 0) {
+								for (int j = 0; j < periods.length(); j++) {
+									JSONObject period = periods.getJSONObject(j);
+									employeeNr = period.getString("EmployeeNr");
+									hourType = period.getString("HourType");
+									workDate = period.getString("WorkDate");
+									description = period.getString("WorkRemark");
+									duration = period.getString("TotalTime");
+									w = new WorkOrder(employeeNr, hourType, workDate, projectNr, description, duration);
+									allData.add(w);
+								}
 							}
-							duration = "2:45";
-							w = new WorkOrder(employeeNr, hourType, workDate, projectNr, description, duration);
-							allData.add(w);
 						}
 					}
 				}
-
 			}
 		} catch (IOException | JSONException e) {
 			e.printStackTrace();
@@ -159,7 +160,8 @@ public class RestHandler {
 
 	}
 
-	public static void addData(String token, Object array, String type) throws ServletException, IOException {
+	public static boolean addData(String token, Object array, String type) throws ServletException, IOException {
+		boolean b = false;
 		String link = "https://www.werkbonapp.nl/openapi/" + version + "/" + type + "/?token=" + token
 				+ "&software_token=" + softwareToken;
 		URL url = new URL(link);
@@ -193,10 +195,22 @@ public class RestHandler {
 		BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 		String output;
 		System.out.println("Output from Server .... \n");
+		
 		while ((output = br.readLine()) != null) {
-			System.out.println(output);
+			System.out.println(output + " type = " + type);
+		}
+		
+		try {
+			JSONObject json = new JSONObject(output);
+			if (json.getInt("code") == 200) {
+				b = true;
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		conn.disconnect();
+		return b;
 
 	}
 
@@ -225,20 +239,22 @@ public class RestHandler {
 		int i = 1;
 		for (Project p : array) {
 			if (i == array.size()) {
-				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + "leeg"
-						+ "\",\"debtor_number\":\"" + p.getDebtor_number() + "\",\"status\":\"" + p.getStatus()
-						+ "\",\"name\":\"" + p.getName() + "\",\"description\":\"" + p.getDescription()
-						+ "\",\"progress\":\"" + p.getProgress() + "\",\"date_start\":\"" + p.getDate_start()
-						+ "\",\"date_end\":\"" + p.getDate_end() + "\",\"active\":\"" + p.getActive() + "\"}";
+				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + "leeg" + "\",\"debtor_number\":\""
+						+ p.getDebtor_number() + "\",\"status\":\"" + p.getStatus() + "\",\"name\":\"" + p.getName()
+						+ "\",\"description\":\"" + p.getDescription() + "\",\"progress\":\"" + p.getProgress()
+						+ "\",\"date_start\":\"" + p.getDate_start() + "\",\"date_end\":\"" + p.getDate_end()
+						+ "\",\"active\":\"" + p.getActive() + "\"}";
 			} else {
+				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + "leeg" + "\",\"debtor_number\":\""
+						+ p.getDebtor_number() + "\",\"status\":\"" + p.getStatus() + "\",\"name\":\"" + p.getName()
+						+ "\",\"description\":\"" + p.getDescription() + "\",\"progress\":\"" + p.getProgress()
+						+ "\",\"date_start\":\"" + p.getDate_start() + "\",\"date_end\":\"" + p.getDate_end()
+						+ "\",\"active\":\"" + p.getActive() + "\"},";
+
 				i++;
-				input += "{\"code\":\"" + p.getCode() + "\",\"code_ext\":\"" + "leeg"
-						+ "\",\"debtor_number\":\"" + p.getDebtor_number() + "\",\"status\":\"" + p.getStatus()
-						+ "\",\"name\":\"" + p.getName() + "\",\"description\":\"" + p.getDescription()
-						+ "\",\"progress\":\"" + p.getProgress() + "\",\"date_start\":\"" + p.getDate_start()
-						+ "\",\"date_end\":\"" + p.getDate_end() + "\",\"active\":\"" + p.getActive() + "\"},";
 			}
 		}
+		System.out.println("INPUT " + input);
 		return input += "]";
 	}
 
@@ -255,7 +271,7 @@ public class RestHandler {
 				j++;
 				if (i == array.size() && j == r.getAddressess().size()) {
 					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
-							+ "\",\"contact\":\"" + "leeg" + "\",\"phone_number\":\"" + a.getPhoneNumber()
+							+ "\",\"contact\":\"" + r.getName() + "\",\"phone_number\":\"" + a.getPhoneNumber()
 							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
@@ -267,6 +283,9 @@ public class RestHandler {
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
 							+ "\",\"remark\":\"" + a.getRemark() + "\"},";
+				}
+				if(r.getDebtorNumber() == null){
+					System.out.println("DEB_NUMMER " + input);
 				}
 			}
 		}

@@ -13,6 +13,7 @@ public class HourType {
 		this.saleBooking = sB;
 		this.salePrice = sP;
 		this.costPrice = cP;
+		this.active = a;
 	}
 	public String getCode() {
 		return code;

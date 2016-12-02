@@ -92,8 +92,6 @@ public class ObjectDAO {
 										+ a.getRemark() + "','" + a.getType() + "','" + a.getAddressId() + "','" + token
 										+ "')");
 
-					} else {
-						System.out.println("relatietoken bestaat al");
 					}
 				}
 				con.close();
@@ -156,13 +154,11 @@ public class ObjectDAO {
 					+ "\" AND addressId=" + code + " AND code=\"" + codeString + "\"");
 
 		} else {
-			System.out.println("code " + codeString);
 			output = statement.executeQuery("SELECT * FROM " + columnName + " WHERE softwareToken =\"" + softwareToken
 					+ "\" AND code=\"" + codeString + "\"");
 		}
 
 		if (output.next()) {
-			System.out.println("name = " + output.getString("name"));
 			b = true;
 		}
 		return b;
@@ -181,14 +177,12 @@ public class ObjectDAO {
 				a = new Address();
 				String addressId = output.getString("addressId");
 				a.setAddressId(Integer.parseInt(addressId));
-				System.out.println("addressID = " + output.getString("addressId"));
-				System.out.println("code = " + output.getString("code"));
 				con.close();
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 		return a;
 
 	}

@@ -27,7 +27,6 @@ public class ImportDataServlet extends HttpServlet {
 	private String[][] options = null;
 	private Search searchObject;
 	private String errorMessage = "";
-	int percentage = 0, perTotal = 0;
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String button = req.getParameter("category");
@@ -111,13 +110,16 @@ public class ImportDataServlet extends HttpServlet {
 			// firstName and Lastname are identical
 			Employee e = new Employee(parts[1], parts[1], parts[0]);
 			emp.add(e);
-			percentage++;
 		}
 		if (!emp.isEmpty()) {
 			ObjectDAO.saveEmployees(emp, token);
 			// Post data to WorkorderApp
-			RestHandler.addData(token, emp, "employees");
-			errorMessage += "Employees imported<br />";
+			Boolean b = RestHandler.addData(token, emp, "employees");
+			if(b){
+				errorMessage += "Employees imported<br />";
+			}else{
+				errorMessage += "Something went wrong<br />";
+			}
 		} else {
 			errorMessage += "No Employees found<br />";
 		}
@@ -139,13 +141,16 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				Project p = (Project) obj;
 				projects.add(p);
-				percentage++;
 			}
 		}
 		if (!projects.isEmpty()) {
 			ObjectDAO.saveProjects(projects, token);
-			RestHandler.addData(token, projects, "projects");
-			errorMessage += "Projects imported<br />";
+			Boolean b = RestHandler.addData(token, projects, "projects");
+			if(b){
+				errorMessage += "Projects imported<br />";
+			}else{
+				errorMessage += "Something went wrong<br />";
+			}
 		} else {
 			errorMessage += "Office " + office + " heeft geen projecten<br />";
 		}
@@ -166,14 +171,17 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				Material m = (Material) obj;
 				materials.add(m);
-				percentage++;
 			}
 
 		}
 		if (!materials.isEmpty()) {
 			ObjectDAO.saveMaterials(materials, token);
-			RestHandler.addData(token, materials, "materials");
-			errorMessage += "Materials imported<br />";
+			Boolean b = RestHandler.addData(token, materials, "materials");
+			if(b){
+				errorMessage += "Materials imported<br />";
+			}else{
+				errorMessage += "Something went wrong<br />";
+			}
 		} else {
 			errorMessage += "Office " + office + " heeft geen materialen<br />";
 		}
@@ -194,13 +202,16 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				Relation r = (Relation) obj;
 				relations.add(r);
-				percentage++;
 			}
 		}
 		if (!relations.isEmpty()) {
 			ObjectDAO.saveRelations(relations, token);
-			RestHandler.addData(token, relations, "relations");
-			errorMessage += "Relations imported<br />";
+			Boolean b = RestHandler.addData(token, relations, "relations");
+			if(b){
+				errorMessage += "Relations imported<br />";
+			}else{
+				errorMessage += "Something went wrong<br />";
+			}
 		} else {
 			errorMessage += "Office " + office + " heeft geen relations<br />";
 		}
@@ -222,13 +233,16 @@ public class ImportDataServlet extends HttpServlet {
 			if (obj != null) {
 				HourType h = (HourType) obj;
 				hourtypes.add(h);
-				percentage++;
 			}
 		}
 		if (!hourtypes.isEmpty()) {
 			ObjectDAO.saveHourTypes(hourtypes, token);
-			RestHandler.addData(token, hourtypes, "hourtypes");
-			errorMessage = "Hourtypes imported<br />";
+			Boolean b = RestHandler.addData(token, hourtypes, "hourtypes");
+			if(b){
+				errorMessage += "Hourtypes imported<br />";
+			}else{
+				errorMessage += "Something went wrong<br />";
+			}
 		} else {
 			errorMessage += "Office " + office + " heeft geen hourtypes<br />";
 		}
@@ -238,6 +252,7 @@ public class ImportDataServlet extends HttpServlet {
 		ArrayList<WorkOrder> allData = RestHandler.getData(token, "GetWorkorders", factuurType, true);
 		String hourString = "<teqs>";
 		for (WorkOrder w : allData) {
+			System.out.println("allData.length()" + allData.size());
 			String string = null;
 			if (w.getProjectNr().equals("")) {
 				Address factuur = null;
@@ -250,7 +265,7 @@ public class ImportDataServlet extends HttpServlet {
 				invoiceType = "FACTUUR";
 				string = "<salesinvoice>" + "<header>" + "<office>" + office + "</office>" + "<invoicetype>"
 						+ invoiceType + "</invoicetype>" + "<invoicedate>" + w.getCreationDate() + "</invoicedate>"
-						+ "<duedate>" + w.getWorkDate() + "</duedate>" + "<customer>" + w.getCustomerDebtorNr()
+						+ "<performancedate>" + w.getWorkDate() + "</performancedate>" + "<customer>" + w.getCustomerDebtorNr()
 						+ "</customer>" + "<status>" + w.getStatus() + "</status>" + "<paymentmethod>"
 						+ w.getPaymentMethod() + "</paymentmethod>" + "<invoiceaddressnumber>" + factuur.getAddressId()
 						+ "</invoiceaddressnumber>" + "<deliveraddressnumber>" + post.getAddressId()
@@ -266,9 +281,8 @@ public class ImportDataServlet extends HttpServlet {
 							+ m.getUnit() + "</units>" + "</line>";
 				}
 				string += "</lines></salesinvoice>";
-				System.out.println("string " + string);
 				SoapHandler.createSOAPXML(session, string, "workorder");
-				errorMessage = "Invoice created";
+				errorMessage += "Invoice created";
 			} else {
 				String code = "PERSONAL";
 				String projectNr = w.getProjectNr();
@@ -282,18 +296,19 @@ public class ImportDataServlet extends HttpServlet {
 					code = "PERSONAL";
 				}
 				invoiceType = "UREN";
-				hourString += "<teq>" + "<header>" + "<office>" + office + "</office>"
-				// Check this later
-						+ "<code>" + "PERSONAL" + "</code>" + "<user>" + w.getEmployeeNr() + "</user>" + "<date>"
-						+ w.getWorkDate() + "</date>" + "<prj1>" + w.getProjectNr() + "</prj1>" + "<prj2>"
-						+ w.getHourType() + "</prj2>" + "</header>" + "<lines>" + "<line type= \"TIME\">" + "<duration>"
-						+ w.getDuration() + "</duration>" + "<description>" + w.getDescription() + "</description>"
-						+ "</line>" + "<line type=\"QUANTITY\">" + "</line>" + "</lines></teq>";
+				if (!w.getHourType().equals("")) {
+					hourString += "<teq>" + "<header>" + "<office>" + office + "</office>"
+					// Check this later
+							+ "<code>" + code + "</code>" + "<user>" + w.getEmployeeNr() + "</user>" + "<date>"
+							+ w.getWorkDate() + "</date>" + "<prj1>" + w.getProjectNr() + "</prj1>" + "<prj2>"
+							+ w.getHourType() + "</prj2>" + "</header>" + "<lines>" + "<line type= \"TIME\">"
+							+ "<duration>" + w.getDuration() + "</duration>" + "<description>" + w.getDescription()
+							+ "</description>" + "</line>" + "<line type=\"QUANTITY\">" + "</line>" + "</lines></teq>";
+				}
 			}
 
 		}
 		hourString += "</teqs>";
-		System.out.println("string " + hourString);
 		errorMessage = "Uurboeking imported\n";
 		SoapHandler.createSOAPXML(session, hourString, "workorder");
 	}

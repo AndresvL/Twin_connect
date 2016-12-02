@@ -34,7 +34,7 @@ public class WorkOrder {
 	}
 
 	// UREN constructor
-	public WorkOrder(String periodWorkDate, String employeeNr, String hourType, String projectNr, String description,
+	public WorkOrder(String employeeNr, String hourType, String periodWorkDate, String projectNr, String description,
 			String duration) {
 		this.employeeNr = employeeNr;
 		this.hourType = hourType;
@@ -195,6 +195,7 @@ public class WorkOrder {
 	}
 
 	public void setDuration(String duration) {
+		System.out.println("duration " + duration);
 		String[] time = duration.split(":");
 		int hours = Integer.parseInt(time[0]);
 		hours = hours * 60;

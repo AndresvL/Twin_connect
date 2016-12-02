@@ -37,6 +37,9 @@ public class Project {
 		this.code_ext = code_ext;
 	}
 	public String getDebtor_number() {
+		if(this.debtorNumber.equals("")){
+			debtorNumber = "leeg";
+		}
 		return debtorNumber;
 	}
 	public void setDebtor_number(String debtor_number) {

@@ -115,7 +115,6 @@ public class SoapHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("RESPONSE " + xmlString);
 		int result = Integer
 				.parseInt(doc.getChildNodes().item(0).getAttributes().getNamedItem("result").getNodeValue());
 		// Check if SOAP result is 0 or 1
