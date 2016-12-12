@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class DBConnection {
 	private static Connection con = null;
 	public static Connection createDatabaseConnection() throws SQLException {
-		String url = "jdbc:mysql://localhost:8889/Twinfield";
+		String url = "jdbc:mysql://localhost/Twinfield";
 		String user = "root";
-		String password = "root";
+		String password = "";
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
