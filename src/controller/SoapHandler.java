@@ -322,13 +322,11 @@ public class SoapHandler {
 					houseNumber = streetNumber[j];
 				}else if(j==streetNumber.length-2){
 					street += streetNumber[j];
-				}else{
+				}
+				else{
 					street += streetNumber[j] + " ";
 				}
-				
 			}
-		
-			street = streetNumber[0];
 			street.replace("'s", "s");
 			if (street.equals("")) {
 				street = "leeg";
@@ -346,7 +344,7 @@ public class SoapHandler {
 			Address a = new Address(name, phoneNumber, email, street, houseNumber, postalCode, city, remark, type, addressId);
 			allAddresses.add(a);
 		}		
-		r = new Relation(name, debtorNumber, null, emailWorkorder, allAddresses);
+		r = new Relation(name, debtorNumber, name, emailWorkorder, allAddresses);
 		return r;
 	}
 

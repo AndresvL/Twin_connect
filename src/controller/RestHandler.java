@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -136,7 +137,7 @@ public class RestHandler {
 							allData.add(w);
 						} else {
 							JSONArray periods = object.getJSONArray("workperiods");
-							
+
 							if (periods.length() > 0) {
 								for (int j = 0; j < periods.length(); j++) {
 									JSONObject period = periods.getJSONObject(j);
@@ -168,11 +169,15 @@ public class RestHandler {
 		String input = null;
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setDoOutput(true);
+		conn.setDoInput(true);
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-Type", "application/json");
 		switch (type) {
 		case "employees":
 			input = employeeInput(array);
+			final Logger LOGGER = Logger.getLogger(Thread.currentThread().getStackTrace()[0].getClassName());
+			LOGGER.info("input = "+input);
+			LOGGER.info("link = "+link);
 			break;
 		case "projects":
 			input = projectInput(array);
@@ -182,6 +187,9 @@ public class RestHandler {
 			break;
 		case "materials":
 			input = materialInput(array);
+			final Logger LOGGER1 = Logger.getLogger(Thread.currentThread().getStackTrace()[0].getClassName());
+			LOGGER1.info("input = "+input);
+			LOGGER1.info("link = "+link);
 			break;
 		case "hourtypes":
 			input = hourtypeInput(array);
@@ -189,25 +197,26 @@ public class RestHandler {
 		}
 
 		OutputStream os = conn.getOutputStream();
-		os.write(input.getBytes());
+		os.write(input.getBytes("UTF-8"));
 		os.flush();
+		System.out.println("os.toString " + os.toString());
 
 		BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 		String output;
 		System.out.println("Output from Server .... \n");
 		
+
 		while ((output = br.readLine()) != null) {
 			System.out.println(output + " type = " + type);
-		}
-		
-		try {
-			JSONObject json = new JSONObject(output);
-			if (json.getInt("code") == 200) {
-				b = true;
+
+			try {
+				JSONObject json = new JSONObject(output);
+				if (json.getInt("code") == 200) {
+					b = true;
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		conn.disconnect();
 		return b;
@@ -254,7 +263,6 @@ public class RestHandler {
 				i++;
 			}
 		}
-		System.out.println("INPUT " + input);
 		return input += "]";
 	}
 
@@ -271,7 +279,7 @@ public class RestHandler {
 				j++;
 				if (i == array.size() && j == r.getAddressess().size()) {
 					input += "{\"name\":\"" + r.getName() + "\",\"debtor_number\":\"" + r.getDebtorNumber()
-							+ "\",\"contact\":\"" + r.getName() + "\",\"phone_number\":\"" + a.getPhoneNumber()
+							+ "\",\"contact\":\"" + r.getContact() + "\",\"phone_number\":\"" + a.getPhoneNumber()
 							+ "\",\"email\":\"" + a.getEmail() + "\",\"email_workorder\":\"" + r.getEmailWorkorder()
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
@@ -284,7 +292,7 @@ public class RestHandler {
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
 							+ "\",\"remark\":\"" + a.getRemark() + "\"},";
 				}
-				if(r.getDebtorNumber() == null){
+				if (r.getDebtorNumber() == null) {
 					System.out.println("DEB_NUMMER " + input);
 				}
 			}

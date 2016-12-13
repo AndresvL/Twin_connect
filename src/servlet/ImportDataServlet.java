@@ -34,42 +34,18 @@ public class ImportDataServlet extends HttpServlet {
 		String factuurType = req.getParameter("factuurType");
 		String token = (String) req.getSession().getAttribute("softwareToken");
 		String session = (String) req.getSession().getAttribute("session");
-		if (button.equals("alles")) {
+		errorMessage = "";
+		if (button.equals("Import")) {
 			getEmployees(office, session, token);
 			getMaterials(office, session, token);
 			getProjects(office, session, token);
 			getRelations(office, session, token);
 			getHourTypes(office, session, token);
 		} else {
-			switch (button) {
-			case "getEmployees":
-				getEmployees(office, session, token);
-				break;
-			case "getMaterials":
-				getMaterials(office, session, token);
-				break;
-			case "getProjects":
-				getProjects(office, session, token);
-				break;
-			case "getRelations":
-				getRelations(office, session, token);
-				break;
-			case "getHourTypes":
-				getHourTypes(office, session, token);
-				break;
-			case "start":
-				setDelay(true);
-				break;
-			case "stop":
-				setDelay(false);
-				break;
-			case "getWorkorder":
-				getWorkOrders(office, session, token, factuurType);
-				break;
-			}
+			getWorkOrders(office, session, token, factuurType);
 		}
 		RequestDispatcher rd = req.getRequestDispatcher("adapter.jsp");
-		req.getSession().setAttribute("error", errorMessage);
+		req.setAttribute("error", errorMessage);
 		req.getSession().setAttribute("soap", "");
 		rd.forward(req, resp);
 	}
@@ -116,9 +92,9 @@ public class ImportDataServlet extends HttpServlet {
 			// Post data to WorkorderApp
 			Boolean b = RestHandler.addData(token, emp, "employees");
 			if(b){
-				errorMessage += "Employees imported<br />";
+				errorMessage += responseArray.size() + " Employees imported<br />";
 			}else{
-				errorMessage += "Something went wrong<br />";
+				errorMessage += "Something went wrong with Employees<br />";
 			}
 		} else {
 			errorMessage += "No Employees found<br />";
@@ -147,12 +123,12 @@ public class ImportDataServlet extends HttpServlet {
 			ObjectDAO.saveProjects(projects, token);
 			Boolean b = RestHandler.addData(token, projects, "projects");
 			if(b){
-				errorMessage += "Projects imported<br />";
+				errorMessage += responseArray.size() + " Projects imported<br />";
 			}else{
-				errorMessage += "Something went wrong<br />";
+				errorMessage += "Something went wrong with Projects<br />";
 			}
 		} else {
-			errorMessage += "Office " + office + " heeft geen projecten<br />";
+			errorMessage += "Office " + office + " doesn't have any projects<br />";
 		}
 	}
 
@@ -178,12 +154,12 @@ public class ImportDataServlet extends HttpServlet {
 			ObjectDAO.saveMaterials(materials, token);
 			Boolean b = RestHandler.addData(token, materials, "materials");
 			if(b){
-				errorMessage += "Materials imported<br />";
+				errorMessage += responseArray.size() + " Materials imported<br />";
 			}else{
-				errorMessage += "Something went wrong<br />";
+				errorMessage += "Something went wrong with Materials<br />";
 			}
 		} else {
-			errorMessage += "Office " + office + " heeft geen materialen<br />";
+			errorMessage += "Office " + office + " doesn't have any materials<br />";
 		}
 	}
 
@@ -208,12 +184,12 @@ public class ImportDataServlet extends HttpServlet {
 			ObjectDAO.saveRelations(relations, token);
 			Boolean b = RestHandler.addData(token, relations, "relations");
 			if(b){
-				errorMessage += "Relations imported<br />";
+				errorMessage += responseArray.size() + " Relations imported<br />";
 			}else{
-				errorMessage += "Something went wrong<br />";
+				errorMessage += "Something went wrong with Relations<br />";
 			}
 		} else {
-			errorMessage += "Office " + office + " heeft geen relations<br />";
+			errorMessage += "Office " + office + " doesn't have any relations<br />";
 		}
 	}
 
@@ -239,12 +215,12 @@ public class ImportDataServlet extends HttpServlet {
 			ObjectDAO.saveHourTypes(hourtypes, token);
 			Boolean b = RestHandler.addData(token, hourtypes, "hourtypes");
 			if(b){
-				errorMessage += "Hourtypes imported<br />";
+				errorMessage += responseArray.size() + " Hourtypes imported<br />";
 			}else{
-				errorMessage += "Something went wrong<br />";
+				errorMessage += "Something went wrong with Hourtypes<br />";
 			}
 		} else {
-			errorMessage += "Office " + office + " heeft geen hourtypes<br />";
+			errorMessage += "Office " + office + " doesn't have any hourtypes<br />";
 		}
 	}
 

@@ -17,7 +17,7 @@ import object.rest.Relation;
 public class ObjectDAO {
 	private static Statement statement;
 	// private static ResultSet output;
-
+	
 	public static void saveEmployees(ArrayList<Employee> emp, String token) {
 		try {
 			Connection con = DBConnection.createDatabaseConnection();
@@ -101,26 +101,6 @@ public class ObjectDAO {
 			e.printStackTrace();
 		}
 	}
-	// public ArrayList<Relation> getAddressId(String token, String type) throws
-	// SQLException {
-	// Relation r = null;
-	// Connection con = DBConnection.createDatabaseConnection();
-	// statement = con.createStatement();
-	// output = statement.executeQuery("SELECT id FROM relations WHERE
-	// softwareToken =\"" + token + "\"");
-	// while (output.next()) {
-	// String accessToken = output.getString("accessToken");
-	// String accessSecret = output.getString("accessSecret");
-	// String consumerToken = output.getString("consumerToken");
-	// String consumerSecret = output.getString("consumerSecret");
-	// String softwareToken = output.getString("softwareToken");
-	// t = new Token(consumerToken, consumerSecret, accessToken, accessSecret,
-	// softwareToken);
-	// break;
-	// }
-	// con.close();
-	// return t;
-	// }
 
 	public static void saveHourTypes(ArrayList<HourType> hourtypes, String token) {
 		try {
@@ -180,7 +160,6 @@ public class ObjectDAO {
 				con.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return a;
