@@ -1,6 +1,7 @@
 package DAO;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 import DBUtil.DBConnection;
 import object.Token;
@@ -38,7 +39,25 @@ public class TokenDAO {
 		return token;
 
 	}
+	
+	public static ArrayList<Token> getSoftwareTokens() throws SQLException {
+		Token token = null;
+		ArrayList<Token> allTokens = new ArrayList<Token>();;
+		Connection con = DBConnection.createDatabaseConnection();
+		statement = con.createStatement();
+		output = statement.executeQuery("SELECT * FROM credentials");
+		while (output.next()) {
+			String softwareToken = output.getString("softwareToken");
+			String accessToken = output.getString("accessToken");
+			String accessSecret = output.getString("accessSecret");
+			String consumerToken = output.getString("consumerToken");
+			String consumerSecret = output.getString("consumerSecret");
+			token = new Token(consumerToken, consumerSecret, accessToken, accessSecret, softwareToken);
+			allTokens.add(token);
+		}
+		return allTokens;
 
+	}
 	public void saveAccessToken(Token t) throws SQLException {
 		if (getSoftwareToken(t.getSoftwareToken()) == null) {
 			Connection con = DBConnection.createDatabaseConnection();

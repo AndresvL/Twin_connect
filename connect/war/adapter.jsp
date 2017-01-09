@@ -41,171 +41,187 @@
 		        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 		    <![endif]-->
 <script>
-	function checkMessage() {
-		var alerted = localStorage.getItem('alerted');
-		var checked1 = localStorage.getItem('checked1');
-		var checked2 = localStorage.getItem('checked2');
-		if ($('#session').val() != "" && $('#session').val() != null
-				&& alerted != "yes") {
-			swal('Success', 'You are connected!', 'success')
-			localStorage.setItem('alerted', 'yes');
-		}
+	function checkSession() {
 		if ($('#session').val() == "" || $('#session').val() == null) {
-			$('#access').show();
-			localStorage.setItem('alerted', 'no');
+			swal({
+				title : 'Warning',
+				text : 'You are not connected',
+				type : 'error'
+			}).then(function() {
+				$('#settings').hide();
+			});
 		}
-
-		if ($('#error').val() != "" && !$('#error').val() != null
-				&& checked1 == "no") {
-			swal('Success', $('#error').val(), 'success')
-			localStorage.setItem('checked1', 'yes');
-		}
-		if ($('#errorExport').val() != "" && $('#errorExport').val() != null
-				&& checked2 == "no") {
-			swal('Success', $('#errorExport').val(), 'success')
-			localStorage.setItem('checked2', 'yes');
-		}
-		if($('#session').val() != "" && $('#session').val() != null){
-			$('#access').hide();
-		}
-		
-
 	}
 	function message() {
 		if ($('#officelist').val() != null)
 			swal({
 				title : 'Please Wait!',
-				text : 'Importing data',
+				text : 'Saving settings',
 				imageUrl : 'loadingbar.gif',
 				imageWidth : 150,
 				imageHeight : 150,
 				animation : true
 			})
-		localStorage.setItem('checked1', 'no');
-		return true;
-	}
-	function messageExport() {
-		if ($('#factuurlist').val() != null
-				&& $('#officeExportList').val() != null)
-			swal({
-				title : 'Please Wait!',
-				text : 'Exporting data',
-				imageUrl : 'loadingbar.gif',
-				imageWidth : 150,
-				imageHeight : 150,
-				animation : true
-			})
-		localStorage.setItem('checked2', 'no');
 		return true;
 	}
 </script>
+<style>
+#float {
+	float: left;
+}
+
+.settings {
+	width: 50%;
+	float: left;
+}
+
+.log {
+	width: 50%;
+	float: right;
+}
+</style>
 </head>
 
-<body class="index" onload="checkMessage();">
-
-	<!-- Contact Section -->
-	<section id="contact">
-		<div class="panel-group">
-			<div class="panel panel-success" id = "access">
-				<div class="panel-heading">Access</div>
-				<div class="panel-body">
-					<form name="getAccess" action="OAuth.do">
-						<div class="row control-group">
-							<div class="col-xs-12 floating-label-form-group controls">
-								<label>Software Token</label> <input type="text"
-									placeholder="Software token" name="token" id="name"
-									value="e0aa544680b8cbee18a15b6650600db2" required
-									data-validation-required-message="Please enter the software token" />
-								<p class="help-block text-danger">
+<body onload="return checkSession();">
+	<!-- Settings Section -->
+	<div id="float">
+		<div class="settings">
+			<div class="panel-group">
+				<input type="hidden" value="${session}" id="session" /> <input
+					type="hidden" value="${error}" id="error" />
+				<form action="import.do">
+					<div class="panel panel-success">
+						<div class="panel-heading">Import settings</div>
+						<div class="panel-body">
+							<div class="row control-group">
+								<div class="form-group col-xs-12 floating-label controls">
+									<label>Office</label> <select name="offices"
+										class="form-control" id="officelist" required>
+										<option disabled selected value>-- Select an office
+											--</option>
+										<c:forEach items="${offices}" var="office">
+											<option value="${office.code}"
+												${office.code == importOffice ? 'selected="selected"' : ''}>${office.name}</option>
+										</c:forEach>
+									</select> <br> <label>Select objects for import</label><br />Saved
+									imports:
+									<c:forEach items="${checkbox}" var="checkboxs">${checkboxs} </c:forEach>
+									<div class="checkbox">
+										<label><input type="checkbox" value="employees"
+											name="importType" id="employees">Employees</label>
+									</div>
+									<div class="checkbox">
+										<label><input type="checkbox" value="projects"
+											name="importType" id="projects">Projects</label>
+									</div>
+									<div class="checkbox">
+										<label><input type="checkbox" value="materials"
+											name="importType">Materials</label>
+									</div>
+									<div class="checkbox">
+										<label><input type="checkbox" value="relations"
+											name="importType">Relations</label>
+									</div>
+									<div class="checkbox">
+										<label><input type="checkbox" value="hourtypes"
+											name="importType">Hourtypes</label>
+									</div>
+								</div>
 							</div>
-
 						</div>
-						<br>
-						<div class="row">
-							<div class="form-group col-xs-12">
-								<input type="submit" class="btn btn-success btn-lg"
-									value="Access" />
+					</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">Export settings</div>
+						<div class="panel-body">
+							<div class="row control-group">
+								<input type="hidden" value="${errorExport}" id="errorExport" />
+								<div class="form-group col-xs-12 floating-label controls">
+									<label>Office</label> <select name="exportOffices"
+										class="form-control" id="officeExportList" required>
+										<option disabled selected value>-- Select an office
+											--</option>
+										<c:forEach items="${offices}" var="office">
+											<option value="${office.code}"
+												${office.code == exportOffice ? 'selected="selected"' : ''}>${office.name}</option>
+										</c:forEach>
+									</select>
+								</div>
+								<div class="form-group col-xs-12 floating-label controls">
+									<label>Werkbontype</label> <select name="factuurType"
+										class="form-control" id="factuurlist" required>
+										<option disabled selected value>-- Select a
+											Werkbontype --</option>
+										<option value="Compleet"
+											${factuur == 'Compleet' ? 'selected="selected"' : ''}>Compleet</option>
+										<option value="Afgehandeld"
+											${factuur == 'Afgehandeld' ? 'selected="selected"' : ''}>Afgehandeld</option>
+									</select>
+								</div>
+							</div>
+							<br>
+							<div id="success"></div>
+							<div class="row">
+								<div class="form-group col-xs-12">
+									<input type="submit" class="btn btn-success btn-lg"
+										value="Save" name="category" onclick="return message();" />
+								</div>
 							</div>
 						</div>
-
-					</form>
-				</div>
+					</div>
+				</form>
+				<form action="sync.do">
+					<div class="panel panel-success">
+						<div class="panel-heading">Manually synchronize</div>
+						<div class="panel-body">
+							<div class="row control-group">
+								<div class="form-group col-xs-12 floating-label controls">
+									<div id="success"></div>
+									<div class="row">
+										<div class="form-group col-xs-12">
+											<input type="hidden" 
+												value="${softwareToken}" name="token"/>
+											<input type="submit" class="btn btn-success btn-lg"
+												value="Synchronize"/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
 			</div>
-			
-			<input type="hidden" value="${session}" id="session" />
-			<div class="panel panel-success">
-				<div class="panel-heading">Import</div>
-				<div class="panel-body">
-					<form action="import.do">
-						<div class="row control-group">
-							<input type="hidden" value="${error}" id="error" />
 
-							<div class="form-group col-xs-12 floating-label controls">
-								<label>Office</label> <select name="offices"
-									class="form-control" id="officelist" required>
-									<option disabled selected value>-- select an Office --</option>
-									<c:forEach items="${offices}" var="office">
-										<option value="${office.code}">${office.name}</option>
-									</c:forEach>
-								</select>
-							</div>
-						</div>
-						<br>
-						<div id="success"></div>
-						<div class="row">
-							<div class="form-group col-xs-12">
-								<input type="submit" class="btn btn-success btn-lg"
-									value="Import" name="category" onclick="return message();" />
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
+		</div>
+		<div class="log">
 			<div class="panel panel-success">
-				<div class="panel-heading">Export</div>
+				<div class="panel-heading">Logs</div>
 				<div class="panel-body">
-					<form action="import.do">
-						<div class="row control-group">
-							<input type="hidden" value="${errorExport}" id="errorExport" />
-							<div class="form-group col-xs-12 floating-label controls">
-								<label>Office</label> <select name="offices"
-									class="form-control" id="officeExportList" required>
-									<option disabled selected value>-- select an Office --</option>
-									<c:forEach items="${offices}" var="office">
-										<option value="${office.code}">${office.name}</option>
+					<div class="row control-group">
+						<div class="form-group col-xs-12 floating-label controls">
+
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Timestamp</th>
+										<th>Log</th>
+									</tr>
+								</thead>
+								<tbody>
+									<c:forEach items="${logs}" var="log">
+										<tr>
+											<td>${log.timestamp}</td>
+											<td>${log.message}</td>
+										</tr>
 									</c:forEach>
-								</select>
-							</div>
-							<div class="form-group col-xs-12 floating-label controls">
-								<label>FactuurType</label> <select name="factuurType"
-									class="form-control" id="factuurlist" required>
-									<option disabled selected value>-- select a
-										FactuurType --</option>
-									<option value="Alle">Alle</option>
-									<option value="Opgehaald">Opgehaald</option>
-									<option value="Klaargezet">Klaargezet</option>
-									<option value="Compleet">Compleet</option>
-									<option value="Afgehandeld">Afgehandeld</option>
-								</select>
-							</div>
+
+								</tbody>
+							</table>
 						</div>
-						<br>
-						<div id="success"></div>
-						<div class="row">
-							<div class="form-group col-xs-12">
-								<input type="submit" class="btn btn-success btn-lg"
-									value="Export" name="category"
-									onclick="return messageExport();" />
-							</div>
-						</div>
-					</form>
+					</div>
 				</div>
 			</div>
 		</div>
-
-	</section>
-
-
+	</div>
 	<!-- jQuery -->
 	<script src="vendor/jquery/jquery.min.js"></script>
 

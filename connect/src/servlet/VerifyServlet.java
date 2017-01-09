@@ -30,7 +30,6 @@ public class VerifyServlet extends HttpServlet {
 		req.getSession().setAttribute("offices", offices);
 		req.getSession().setAttribute("softwareToken", token.getSoftwareToken());
 		req.getSession().setAttribute("session", sessionID);
-		System.out.println("office " + offices);
 		rd.forward(req, resp);
 	}
 }

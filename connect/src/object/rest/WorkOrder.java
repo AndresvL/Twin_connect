@@ -37,13 +37,14 @@ public class WorkOrder {
 
 	// UREN constructor
 	public WorkOrder(String employeeNr, String hourType, String periodWorkDate, String projectNr, String description,
-			String duration) {
+			String duration, String id) {
 		this.employeeNr = employeeNr;
 		this.hourType = hourType;
 		this.setWorkDate(periodWorkDate);
 		this.projectNr = projectNr;
 		this.description = description;
 		this.setDuration(duration);
+		this.id = id;
 	}
 
 	public String getProjectNr() {
@@ -68,7 +69,6 @@ public class WorkOrder {
 				SimpleDateFormat dt = new SimpleDateFormat("dd-MM-yyyy");
 				Date date = dt.parse(workDate);
 				SimpleDateFormat dt1 = new SimpleDateFormat("yyyyMMdd");
-				System.out.println("date " + dt1.format(date));
 				this.workDate = dt1.format(date);
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -133,7 +133,6 @@ public class WorkOrder {
 			SimpleDateFormat dt = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 			Date date = dt.parse(creationDate);
 			SimpleDateFormat dt1 = new SimpleDateFormat("yyyyMMdd");
-			System.out.println("date " + dt1.format(date));
 			this.creationDate = dt1.format(date);
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -197,7 +196,6 @@ public class WorkOrder {
 	}
 
 	public void setDuration(String duration) {
-		System.out.println("duration " + duration);
 		String[] time = duration.split(":");
 		int hours = Integer.parseInt(time[0]);
 		hours = hours * 60;

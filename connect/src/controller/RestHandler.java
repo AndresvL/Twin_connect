@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -32,7 +29,6 @@ public class RestHandler {
 	public static int checkToken(String token) {
 		String link = "https://www.werkbonapp.nl/openapi/" + version + "/employees/?token=" + token + "&software_token="
 				+ softwareToken;
-
 		int code = 0;
 		String output = null;
 		try {
@@ -57,9 +53,8 @@ public class RestHandler {
 	}
 	public static void setWorkorderStatus(String id, String workorderNr, Boolean status, String type, String token){
 		String link = "https://www.werkbonapp.nl/openapi/" + version + "/" + type + "/?token=" + token
-				+ "&software_token=" + softwareToken + "&row_id=" + id + "&workorder_no=" + workorderNr + "&update_status=" + status;
+				+ "&software_token=" + softwareToken + "&row_id=" + id + "&update_status=" + status;
 		URL url;
-		System.out.println("LINK STATUS " + link);
 		String output = null;
 		try {
 			url = new URL(link);
@@ -69,7 +64,6 @@ public class RestHandler {
 			conn.setRequestProperty("Content-Type", "application/json");
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 			while ((output = br.readLine()) != null) {
-				//System.out.println("OUTPUT " + output);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -99,23 +93,22 @@ public class RestHandler {
 			conn.setRequestProperty("Content-Type", "application/json");
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 			while ((output = br.readLine()) != null) {
-				allData = new ArrayList<WorkOrder>();
 				WorkOrder w = null;
 				JSONObject json = new JSONObject(output);
 				if (json.getInt("code") == 200) {
+					allData = new ArrayList<WorkOrder>();
 					JSONArray array = json.getJSONArray("object");
 					for (int i = 0; i < array.length(); i++) {
 						JSONObject object = array.getJSONObject(i);
 						projectNr = object.getString("ProjectNr");
 						id = object.getString("id");
-						System.out.println("id " + id);
 						workorderNr	= object.getString("WorkorderNo");
-						System.out.println("work " + workorderNr);
 						if (projectNr.equals("")) {
 							workDate = object.getString("WorkDate");
 							customerEmailInvoice = object.getString("CustomerEmailInvoice");
 							customerEmail = object.getString("CustomerEmail");
 							customerDebtorNr = object.getString("CustomerDebtorNr");
+							System.out.println("costumdbnr " + customerDebtorNr);
 							employeeNr = object.getString("EmployeeNr");
 							status = object.getString("status");
 							creationDate = object.getString("CreationDate");
@@ -169,7 +162,7 @@ public class RestHandler {
 									workDate = period.getString("WorkDate");
 									description = period.getString("WorkRemark");
 									duration = period.getString("TotalTime");
-									w = new WorkOrder(employeeNr, hourType, workDate, projectNr, description, duration);
+									w = new WorkOrder(employeeNr, hourType, workDate, projectNr, description, duration, id);
 									allData.add(w);
 								}
 							}
@@ -223,8 +216,7 @@ public class RestHandler {
 		
 
 		while ((output = br.readLine()) != null) {
-			System.out.println(output + " type = " + type);
-
+			System.out.println(output);
 			try {
 				JSONObject json = new JSONObject(output);
 				if (json.getInt("code") == 200) {
@@ -307,9 +299,6 @@ public class RestHandler {
 							+ "\",\"street\":\"" + a.getStreet() + "\",\"house_number\":\"" + a.getHouseNumber()
 							+ "\",\"postal_code\":\"" + a.getPostalCode() + "\",\"city\":\"" + a.getCity()
 							+ "\",\"remark\":\"" + a.getRemark() + "\"},";
-				}
-				if (r.getDebtorNumber() == null) {
-					System.out.println("DEB_NUMMER " + input);
 				}
 			}
 		}

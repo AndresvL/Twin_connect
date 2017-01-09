@@ -33,4 +33,13 @@
 		<servlet-name>import data servlet</servlet-name>
 		<url-pattern>/import.do</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>sync servlet</servlet-name>
+		<servlet-class>servlet.SynchServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>sync servlet</servlet-name>
+		<url-pattern>/sync.do</url-pattern>
+	</servlet-mapping>
 </web-app> 

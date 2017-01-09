@@ -35,10 +35,11 @@ public class SoapHandler {
 			// Send SOAP Message to SOAP Server
 			String url = "https://login.twinfield.com/webservices/session.asmx?/";
 			SOAPMessage soapResponse = soapConnection.call(createSOAPSession(token), url);
-			// Set session
+			
 			SOAPEnvelope soapPart = soapResponse.getSOAPPart().getEnvelope();
 			sessionID = soapPart.getHeader().getFirstChild().getFirstChild().getTextContent();
 			cluster = soapPart.getBody().getFirstChild().getLastChild().getTextContent();
+
 			soapConnection.close();
 		} catch (Exception e) {
 			System.err.println("Error occurred while sending SOAP Request to Server");
@@ -105,34 +106,43 @@ public class SoapHandler {
 			soapResponse = soapConnection.call(soapMessage, url);
 			xmlString = soapResponse.getSOAPPart().getEnvelope().getBody().getFirstChild().getFirstChild()
 					.getTextContent();
+			System.out.println("requestString " + data);
+			System.out.println("responseString " + xmlString);
 			soapConnection.close();
 
-			
 			builder = factory.newDocumentBuilder();
 			doc = builder.parse(new InputSource(new StringReader(xmlString)));
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		int result = Integer.parseInt(doc.getChildNodes().item(0).getAttributes().getNamedItem("result").getNodeValue());
+		
 		if(type.equals("workorder")){
 			ArrayList<Boolean> results = new ArrayList<Boolean>();
 			NodeList workorder = doc.getChildNodes().item(0).getChildNodes();
 			int workorderResult = 0;
-			for(int i = 0; i < workorder.getLength(); i++){
-				workorderResult = Integer.parseInt(workorder.item(i).getAttributes().getNamedItem("result").getNodeValue());
-				System.out.println("workorderResult " + workorderResult);
-				if(workorderResult == 1){
+			System.out.println("result " + workorder.getLength());
+			for (int i = 0; i < workorder.getLength(); i++) {
+				workorderResult = Integer
+						.parseInt(workorder.item(i).getAttributes().getNamedItem("result").getNodeValue());
+				if (workorderResult == 1) {
 					results.add(true);
-				}else{
+				} else {
 					results.add(false);
 				}
 			}
 			return results;
 		}
-		
+		if(type.equals("workorderFactuur")){
+			if(result > 0){
+				return true;
+			}else{
+				return false;
+			}
+		}
 		// Check if SOAP result is 0 or 1
-		int result = Integer
-				.parseInt(doc.getChildNodes().item(0).getAttributes().getNamedItem("result").getNodeValue());
+		
 		if (result != 0) {
 			switch (type) {
 			case "project":
@@ -149,9 +159,6 @@ public class SoapHandler {
 				break;
 			case "office":
 				obj = getOffices(doc);
-				break;
-			case "workorder":
-				
 				break;
 			}
 		}
@@ -220,6 +227,7 @@ public class SoapHandler {
 			}
 		}
 	}
+
 	// Set a body with parameter list
 	private static void setXMLBody(SOAPEnvelope envelope, String data) throws SOAPException {
 		SOAPBody soapBody = envelope.getBody();
@@ -227,6 +235,7 @@ public class SoapHandler {
 		SOAPElement soapBodyElem1 = soapBodyElem.addChildElement("xmlRequest");
 		soapBodyElem1.addTextNode("<![CDATA[" + data + "]]>");
 	}
+
 	// Global header
 	private static void setHeader(SOAPEnvelope envelope, String session) throws SOAPException {
 		envelope.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -271,7 +280,8 @@ public class SoapHandler {
 		if (status.equals("active")) {
 			active = 1;
 		}
-		p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description, 0, active, authoriser);
+		p = new Project(code, code_ext, debtorNumber, status, name, dateStart, dateEnd, description, 0, active,
+				authoriser);
 
 		return p;
 	}
@@ -324,7 +334,7 @@ public class SoapHandler {
 				remark = null;
 		ArrayList<Address> allAddresses = new ArrayList<Address>();
 		for (int i = 0; i < addresses.getLength(); i++) {
-			street ="";			
+			street = "";
 			NodeList address = addresses.item(i).getChildNodes();
 			int addressId = Integer.parseInt(addresses.item(i).getAttributes().getNamedItem("id").getNodeValue());
 			String type = addresses.item(i).getAttributes().getNamedItem("type").getNodeValue();
@@ -334,13 +344,12 @@ public class SoapHandler {
 				email = "leeg";
 			}
 			String streetNumber[] = address.item(9).getTextContent().split("\\s+");
-			for(int j = 0; j<streetNumber.length; j++){
-				if(j==streetNumber.length-1){
+			for (int j = 0; j < streetNumber.length; j++) {
+				if (j == streetNumber.length - 1) {
 					houseNumber = streetNumber[j];
-				}else if(j==streetNumber.length-2){
+				} else if (j == streetNumber.length - 2) {
 					street += streetNumber[j];
-				}
-				else{
+				} else {
 					street += streetNumber[j] + " ";
 				}
 			}
@@ -358,9 +367,10 @@ public class SoapHandler {
 				city = "leeg";
 			}
 			remark = address.item(8).getTextContent();
-			Address a = new Address(name, phoneNumber, email, street, houseNumber, postalCode, city, remark, type, addressId);
+			Address a = new Address(name, phoneNumber, email, street, houseNumber, postalCode, city, remark, type,
+					addressId);
 			allAddresses.add(a);
-		}		
+		}
 		r = new Relation(name, debtorNumber, name, emailWorkorder, allAddresses);
 		return r;
 	}

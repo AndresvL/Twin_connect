@@ -3,19 +3,14 @@ package DBUtil;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.logging.Logger;
 
 public class DBConnection {
 	private static Connection con = null;
 	private static String password, user, url, host, port, database;
 
 	public static Connection createDatabaseConnection() throws SQLException {
-		onlineCon();
-		final Logger LOGGER = Logger.getLogger(Thread.currentThread().getStackTrace()[0].getClassName());
-		LOGGER.info("URL " + url);
+		localCon();
 		try {
-
 			Class.forName("com.mysql.jdbc.Driver");
 			con = (Connection) DriverManager.getConnection(url, user, password);
 		} catch (ClassNotFoundException e) {

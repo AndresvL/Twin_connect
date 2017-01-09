@@ -39,8 +39,8 @@ public class OAuthTwinfield {
 			String uri = "https://login.twinfield.com/oauth/initiate.aspx";
 			// Change to WorkOrder host
 			// action is verify.do
-			String callback = "http://koppeling-connect.44fs.preview.openshiftapps.com/connect/verify.do";
-			//String callback = "http://localhost:8080/connect/verify.do";
+			//String callback = "http://koppeling-connect.44fs.preview.openshiftapps.com/connect/verify.do";
+			String callback = "http://localhost:8080/connect/verify.do";
 			CloseableHttpClient httpclient;
 			httpclient = HttpClients.createDefault();
 			HttpGet httpGet = new HttpGet(uri);
